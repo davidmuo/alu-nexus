@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'core/services/bookmark_store.dart';
 import 'core/theme/app_theme.dart';
 import 'core/demo/demo_cubits.dart';
@@ -26,9 +27,14 @@ const bool kDemoMode = false;
 
 /// When running in live mode, connect to the local Firebase Emulator Suite
 /// (firebase emulators:start) instead of production Firebase.
-/// For a physical Android device run: adb reverse tcp:9099 tcp:9099
-/// and adb reverse tcp:8080 tcp:8080 so localhost reaches the host machine.
 const bool kUseEmulators = true;
+
+/// Emulator host. Defaults to localhost (web/desktop). For a physical
+/// Android device the Firebase plugins rewrite "localhost" to 10.0.2.2
+/// (the AVD-only alias), so pass the host machine's LAN IP instead:
+///   flutter run --dart-define=EMU_HOST=192.168.1.12
+const String kEmulatorHost =
+    String.fromEnvironment('EMU_HOST', defaultValue: 'localhost');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,8 +46,8 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     if (kUseEmulators) {
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      await FirebaseAuth.instance.useAuthEmulator(kEmulatorHost, 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator(kEmulatorHost, 8080);
     }
   }
 
@@ -73,6 +79,7 @@ class _AluNexusAppState extends State<AluNexusApp> {
   late final ApplicationCubit _applicationCubit;
   late final StartupCubit _startupCubit;
   late final NotificationCubit _notificationCubit;
+  late final GoRouter _router;
 
   @override
   void initState() {
@@ -91,6 +98,9 @@ class _AluNexusAppState extends State<AluNexusApp> {
       _startupCubit = StartupCubit(StartupRepository());
       _notificationCubit = NotificationCubit();
     }
+    // Created once: GoRouter listens to auth changes via refreshListenable.
+    // Recreating it per state change would reset navigation mid-flow.
+    _router = AppRouter.create(_authCubit);
   }
 
   @override
@@ -113,15 +123,13 @@ class _AluNexusAppState extends State<AluNexusApp> {
         BlocProvider.value(value: _startupCubit),
         BlocProvider.value(value: _notificationCubit),
       ],
-      child: BlocBuilder<AuthCubit, AuthState>(
-        bloc: _authCubit,
-        builder: (context, _) {
-          final router = AppRouter.create(_authCubit);
+      child: Builder(
+        builder: (context) {
           return MaterialApp.router(
-            title: 'ALU Nexus',
+            title: 'ALU-Nexus',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
-            routerConfig: router,
+            routerConfig: _router,
             builder: (context, child) {
               if (kDemoMode) {
                 return Stack(

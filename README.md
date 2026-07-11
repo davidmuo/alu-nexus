@@ -35,9 +35,14 @@ Two flags in `lib/main.dart` select the backend:
 The demo repositories subclass the production ones, so all three modes run
 the identical UI, routing, and state layer.
 
-> Physical Android device + emulators: run `adb reverse tcp:9099 tcp:9099`
-> and `adb reverse tcp:8080 tcp:8080` so the phone's localhost reaches the
-> host machine.
+> **Physical Android device + emulators:** the Firebase plugins rewrite
+> `localhost` to `10.0.2.2` (an AVD-only alias), so point the app at your
+> computer's LAN IP instead (emulators are bound to `0.0.0.0` in
+> firebase.json; allow TCP 8080/9099 through the firewall):
+>
+> ```
+> flutter run --dart-define=EMU_HOST=<your-pc-lan-ip>
+> ```
 
 ### Demo accounts
 
