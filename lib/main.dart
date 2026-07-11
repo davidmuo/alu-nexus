@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +22,13 @@ import 'router/app_router.dart';
 /// Demo mode serves in-memory data so the app runs without a Firebase
 /// project. Set to `false` after running `flutterfire configure` to switch
 /// every repository to live Firebase Auth + Firestore.
-const bool kDemoMode = true;
+const bool kDemoMode = false;
+
+/// When running in live mode, connect to the local Firebase Emulator Suite
+/// (firebase emulators:start) instead of production Firebase.
+/// For a physical Android device run: adb reverse tcp:9099 tcp:9099
+/// and adb reverse tcp:8080 tcp:8080 so localhost reaches the host machine.
+const bool kUseEmulators = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +39,10 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    if (kUseEmulators) {
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    }
   }
 
   SystemChrome.setSystemUIOverlayStyle(

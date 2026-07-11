@@ -21,17 +21,23 @@ internship experience with student-led startups inside the ALU ecosystem.
 
 ```bash
 flutter pub get
-flutter run          # runs in demo mode out of the box
+flutter run
 ```
 
-**Demo mode** (`kDemoMode = true` in `lib/main.dart`) serves realistic
-in-memory data through the same Cubits and repository interfaces the live app
-uses, so every flow is demonstrable without credentials.
+Two flags in `lib/main.dart` select the backend:
 
-**Live mode** — follow [SETUP.md](SETUP.md) to create the Firebase project,
-run `flutterfire configure`, then set `kDemoMode = false`. No other code
-changes are required: the demo repositories subclass the production ones, so
-swapping is a one-line flag.
+| `kDemoMode` | `kUseEmulators` | Behavior |
+|---|---|---|
+| `true` | — | In-memory demo data; no Firebase needed at all |
+| `false` | `true` | Real Firebase SDKs against the local **Emulator Suite** — run `firebase emulators:start --only auth,firestore` first (Emulator UI at localhost:4000) |
+| `false` | `false` | Production Firebase (`flutterfire configure` per [SETUP.md](SETUP.md)) |
+
+The demo repositories subclass the production ones, so all three modes run
+the identical UI, routing, and state layer.
+
+> Physical Android device + emulators: run `adb reverse tcp:9099 tcp:9099`
+> and `adb reverse tcp:8080 tcp:8080` so the phone's localhost reaches the
+> host machine.
 
 ## Architecture
 
