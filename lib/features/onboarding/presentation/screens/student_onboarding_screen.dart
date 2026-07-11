@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_wordmark.dart';
 
 class StudentOnboardingScreen extends StatefulWidget {
   const StudentOnboardingScreen({super.key});
@@ -93,22 +94,7 @@ class _StudentOnboardingScreenState extends State<StudentOnboardingScreen> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.hub_rounded, color: AppColors.white, size: 20),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'ALU Nexus',
-                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                        ),
+                        const AppWordmark(size: 20),
                         const Spacer(),
                         Text(
                           '${_page + 1}/3',

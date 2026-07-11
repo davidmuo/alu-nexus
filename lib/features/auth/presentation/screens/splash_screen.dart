@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../cubit/auth_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_wordmark.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,17 +60,11 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: const Icon(Icons.hub_rounded,
-                    size: 28, color: AppColors.white),
-              ).animate().fadeIn(duration: 400.ms).scale(
-                    begin: const Offset(0.9, 0.9),
+              const AppWordmark(size: 30, color: AppColors.white)
+                  .animate()
+                  .fadeIn(duration: 400.ms)
+                  .scale(
+                    begin: const Offset(0.95, 0.95),
                     end: const Offset(1, 1),
                     curve: Curves.easeOut,
                   ),
@@ -89,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
               const SizedBox(height: 12),
               Text(
-                'ALU Nexus — where ALU students meet\nstudent-led startups.',
+                'Where ALU students meet\nstudent-led startups.',
                 style: TextStyle(
                   fontFamily: 'Satoshi',
                   color: AppColors.white.withValues(alpha: 0.6),

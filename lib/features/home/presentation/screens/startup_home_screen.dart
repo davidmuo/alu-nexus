@@ -3,6 +3,7 @@ import '../../../startups/presentation/screens/startup_profile_screen.dart';
 import '../../../opportunities/presentation/screens/post_opportunity_screen.dart';
 import '../../../applications/presentation/screens/application_tracker_screen.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_wordmark.dart';
 
 class StartupHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -64,20 +65,7 @@ class _StartupDashboard extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.grey50,
       appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.hub_rounded, color: AppColors.white, size: 18),
-            ),
-            const SizedBox(width: 8),
-            const Text('ALU Nexus'),
-          ],
-        ),
+        title: const AppWordmark(size: 20),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),

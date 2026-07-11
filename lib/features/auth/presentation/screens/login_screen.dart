@@ -8,6 +8,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_wordmark.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,26 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 32),
                 // Logo
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.hub_rounded, color: AppColors.white, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'ALU Nexus',
-                      style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ],
-                ).animate().fadeIn(duration: 500.ms),
+                const AppWordmark(size: 26).animate().fadeIn(duration: 500.ms),
                 const SizedBox(height: 48),
                 Text(
                   'Welcome back!',
