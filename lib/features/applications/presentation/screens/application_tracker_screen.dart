@@ -146,32 +146,6 @@ class ApplicationCard extends StatelessWidget {
     required this.isStartupView,
   });
 
-  Color get _statusColor {
-    switch (application.status) {
-      case 'pending': return AppColors.warning;
-      case 'reviewing': return AppColors.info;
-      case 'shortlisted': return AppColors.primary;
-      case 'interviewing': return AppColors.accent;
-      case 'accepted': return AppColors.success;
-      case 'rejected': return AppColors.error;
-      case 'withdrawn': return AppColors.grey500;
-      default: return AppColors.grey500;
-    }
-  }
-
-  Color get _statusBgColor {
-    switch (application.status) {
-      case 'pending': return AppColors.warningLight;
-      case 'reviewing': return AppColors.infoLight;
-      case 'shortlisted': return AppColors.primary.withValues(alpha: 0.1);
-      case 'interviewing': return AppColors.accent.withValues(alpha: 0.1);
-      case 'accepted': return AppColors.successLight;
-      case 'rejected': return AppColors.errorLight;
-      case 'withdrawn': return AppColors.grey100;
-      default: return AppColors.grey100;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -224,19 +198,12 @@ class ApplicationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _statusBgColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  application.statusLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: _statusColor,
-                  ),
+              Text(
+                application.statusLabel,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.tagPurple,
                 ),
               ),
             ],
