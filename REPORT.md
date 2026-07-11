@@ -149,7 +149,35 @@ insensitive overlap with the student's skills and features the best match
 ("Matches N of your skills"). This is O(feed × skills) client-side —
 appropriate at current scale, with an upgrade path described in §7.
 
-## 6. Error, loading, and edge-case handling
+## 6. UI/UX reasoning
+
+The interface was deliberately redesigned twice rather than shipped from a
+template, converging on a flat design system:
+
+- **One accent color** (royal blue `#2563EB`) on white surfaces with
+  cool-tinted neutrals. Color is reserved for *meaning*: green = paid/
+  approved, amber = pending, red = deadline/rejection, pastel tags for
+  skills. Gradients and decorative effects were removed after review — they
+  added noise without information.
+- **Progressive disclosure on the feed**: greeting → search + filter →
+  category chips → one featured skill-matched card → compact tiles. A
+  student's first decision ("is there anything for me?") is answered by the
+  featured card before any scrolling.
+- **Pipeline visualization** in the tracker: application status is a
+  five-step progress bar, not a text label, because the core anxiety the
+  app addresses is *not knowing where an application stands*.
+- **No dead ends**: every list has loading (shimmer), error (retry), and
+  empty (guidance) states; every dead-tap menu item found in review was
+  either implemented (bookmarks) or removed.
+- **Trust signals**: the verified badge appears everywhere a startup is
+  named, and unverified startups simply cannot reach the feed — students
+  should never need to assess legitimacy themselves.
+
+*(Screenshots of the onboarding flow, feed, detail, application pipeline,
+admin verification, and Firebase Console synchronization are included in
+the submitted PDF alongside this section.)*
+
+## 7. Error, loading, and edge-case handling
 
 - Every Cubit models `Loading` and `Error` states; screens render shimmer
   placeholders or retryable error panels — no blank screens.
@@ -163,17 +191,17 @@ appropriate at current scale, with an upgrade path described in §7.
 - Empty states (no results, no bookmarks, no applications) are explicit
   widgets with guidance text.
 
-## 7. Scalability considerations
+## 8. Scalability considerations
 
 - **Query cost** — all list queries are indexed, filtered server-side
   (`isActive`, `startupVerified`, type, commitment), and bounded
   (`limit(50)` on notifications). Text search is client-side over the
   streamed page today; at larger volumes the drop-in replacement is a
   search service (Algolia/Typesense) fed by Firestore triggers [3].
-- **Skill matching** — current client-side scoring is O(n·m) per feed load.
-  The repository already exposes `getRecommendedOpportunities()` using
-  Firestore's `arrayContainsAny`, so ranking can move server-side (Cloud
-  Function + composite index) without touching the UI layer.
+- **Skill matching** — current client-side scoring is O(n·m) per feed load
+  (see §5). The repository already exposes `getRecommendedOpportunities()`
+  using Firestore's `arrayContainsAny`, so ranking can move server-side
+  (Cloud Function + composite index) without touching the UI layer.
 - **Fan-out notifications** — writing one notification document per
   recipient scales linearly; a Cloud Functions trigger on application
   status change keeps client code unchanged while centralizing fan-out.
@@ -181,16 +209,63 @@ appropriate at current scale, with an upgrade path described in §7.
   analytics) are additive: new folder, new Cubit, new routes; no cross-
   feature edits required.
 
-## 8. Testing & quality
+## 9. Testing strategy
 
-- `flutter analyze`: **0 issues** (deprecations resolved to current
-  Material 3 APIs, e.g. `withValues`, `initialValue`, `activeThumbColor`).
-- Unit tests cover the validator layer (ALU-domain rules, password policy,
-  URL/length validation) — the highest-risk pure logic in the app.
-- Demo mode doubles as an integration harness: every screen exercises the
-  real Cubit/repository interfaces against deterministic data.
+Testing effort was allocated by risk:
 
-## 9. Limitations & future work
+1. **Static analysis as a gate** — `flutter analyze` runs at **0 issues**;
+   every deprecation was resolved to current Material 3 APIs
+   (`withValues`, `initialValue`, `activeThumbColor`) rather than
+   suppressed, so the codebase compiles clean against future SDKs.
+2. **Unit tests for pure logic** — the validator layer (ALU-domain email
+   rules, password policy, URL/length validation) is the highest-risk pure
+   logic: a bug there silently admits non-ALU users or blocks valid ones.
+   16 tests cover accept/reject paths (`test/validators_test.dart`).
+3. **Demo mode as an integration harness** — because demo repositories
+   subclass the production ones, running the app in demo mode exercises
+   every Cubit transition, route guard, and screen against deterministic
+   data. Each release candidate was manually walked through the full
+   student journey (register → onboard → discover → apply → track) and
+   the startup/admin journeys on both Chrome and a physical Android
+   device (Samsung S22 Ultra).
+4. **Rule-level security** — Firestore security rules are version-
+   controlled (`firestore.rules`) and deployed with the app, so access
+   control is testable and reviewable rather than console-configured.
+
+## 10. Challenges encountered & how they were overcome
+
+| Challenge | Resolution |
+|---|---|
+| **Firebase-coupled construction crashes.** Early repositories captured `FirebaseAuth.instance` in constructors, so the app crashed at startup on any device without Firebase configured. | Refactored every repository to *lazy getters* (`FirebaseAuth get _auth => FirebaseAuth.instance`). Firebase is now touched only when a method is invoked — which also made demo subclassing possible. |
+| **Demo data vs. type safety.** Screens resolve Cubits by concrete type (`context.read<AuthCubit>()`), so standalone demo cubits broke every screen. | Made demo cubits *subclass* the real ones (`DemoAuthCubit extends AuthCubit`), injecting overridden repositories through the existing constructor — zero screen changes. |
+| **Organization billing policy blocked Firestore.** The ALU-managed Google Cloud org requires billing before a Firestore database can be created, blocking backend integration on the school account. | Diagnosed via CLI (same 403 across regions/editions ⇒ project-level policy, not configuration); the workaround is provisioning the Firebase project outside the org and granting the school account owner access. Demo mode kept development fully unblocked meanwhile. |
+| **Compound query index requirements.** Firestore rejects multi-field filtered queries (`isActive + startupVerified + type + createdAt`) until a composite index exists — a runtime failure mode that would surface mid-demo. | All 13 required composite indexes were declared in `firestore.indexes.json` and deploy with one command, instead of being clicked together reactively from error links. |
+| **Dart string interpolation in compensation text.** `'$200/month'` is parsed as interpolation of a variable `2` — a syntax error that's easy to misread. | Raw strings (`r'$200/month'`) for all currency literals. |
+| **Flutter framework assertion: invisible ink splashes.** `ListTile` inside a decorated `Container` throws debug assertions because ripples paint on the nearest `Material` ancestor. | Replaced decorated containers with `Material(shape: ...)` wrappers — which also unified how every card in the app is built. |
+
+## 11. Lessons learned
+
+- **Depend on interfaces, defer side effects.** The lazy-getter refactor
+  was two lines per repository but unlocked the entire demo-mode
+  architecture. Constructors that perform I/O couple a whole app to its
+  backend's availability.
+- **Infrastructure belongs in version control.** Declaring security rules
+  and indexes as files (`firestore.rules`, `firestore.indexes.json`)
+  turned console clicking into reviewable, redeployable artifacts.
+- **Real-world cloud constraints are design inputs.** An org billing
+  policy — not code — was the single biggest blocker. Building the app to
+  run without its backend turned that from a stop-the-world problem into a
+  footnote.
+- **Restraint is a design skill.** The strongest UI iteration was the one
+  that *removed* things: gradients, emojis, dead menu items. A single
+  accent color with semantic exceptions reads as more professional than
+  any decoration.
+- **State machines make edge cases visible.** Modeling every list as
+  `Initial | Loading | Loaded | Error` forced loading/error/empty UI to
+  exist for every screen — the difference between an app that demos well
+  and one that survives a bad network.
+
+## 12. Limitations & future work
 
 - Push notifications (FCM) are scaffolded but not yet delivered end-to-end.
 - Resume/file upload to Firebase Storage is stubbed at the UI level.
