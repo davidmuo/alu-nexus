@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "790288149422",
+    "project_id": "alunexus-b85a1",
+    "storage_bucket": "alunexus-b85a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790288149422:android:69a2059193c957faf6763f",
+        "android_client_info": {
+          "package_name": "com.alu.alu_nexus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFkgO5Pu4k16t4vQaXAMkHQvnOSufKVqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

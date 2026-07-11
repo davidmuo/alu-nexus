@@ -1,0 +1,118 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "startupVerified", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "startupVerified", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "startupVerified", "order": "ASCENDING" },
+        { "fieldPath": "commitment", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "startupVerified", "order": "ASCENDING" },
+        { "fieldPath": "isPaid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "startupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "startupVerified", "order": "ASCENDING" },
+        { "fieldPath": "skills", "arrayConfig": "CONTAINS" }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicantId", "order": "ASCENDING" },
+        { "fieldPath": "appliedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "startupId", "order": "ASCENDING" },
+        { "fieldPath": "appliedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "opportunityId", "order": "ASCENDING" },
+        { "fieldPath": "appliedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicantId", "order": "ASCENDING" },
+        { "fieldPath": "opportunityId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "isRead", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "startups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "verificationStatus", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

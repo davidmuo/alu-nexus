@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users: anyone signed in can read profiles; only the owner writes
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Startups: readable by all signed-in users; owner or admin mutates
+    match /startups/{startupId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if signedIn() &&
+        (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Opportunities: readable by all signed-in users; only the owning
+    // startup's owner may create/update
+    match /opportunities/{oppId} {
+      allow read: if signedIn();
+      allow create: if signedIn() &&
+        get(/databases/$(database)/documents/startups/$(request.resource.data.startupId)).data.ownerId == request.auth.uid;
+      allow update: if signedIn() && (
+        get(/databases/$(database)/documents/startups/$(resource.data.startupId)).data.ownerId == request.auth.uid ||
+        // allow view/application counters from any signed-in client
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount', 'applicationCount'])
+      );
+    }
+
+    // Applications: applicant creates their own; applicant or the
+    // receiving startup's owner reads/updates
+    match /applications/{appId} {
+      allow create: if signedIn() &&
+        request.resource.data.applicantId == request.auth.uid;
+      allow read, update: if signedIn() && (
+        resource.data.applicantId == request.auth.uid ||
+        get(/databases/$(database)/documents/startups/$(resource.data.startupId)).data.ownerId == request.auth.uid
+      );
+    }
+
+    // Notifications: owner-only
+    match /notifications/{notifId} {
+      allow read, update: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn();
+    }
+
+    // Admin audit log
+    match /admin_actions/{actionId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
