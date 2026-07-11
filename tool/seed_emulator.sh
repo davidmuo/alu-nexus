@@ -86,19 +86,19 @@ echo "Creating startups..."
 seed_startup "seed-startup-1" "$FOUNDER_UID" "NexEd Solutions" \
   "Reimagining access to quality education across Africa" \
   "Edtech startup building adaptive learning tools for secondary and tertiary students in Sub-Saharan Africa. Our app personalizes study plans for 5,000+ active learners." \
-  "Education" "approved" "growth" 3 47 400 \
+  "Education" "approved" "growth" 4 47 400 \
   '[{"stringValue":"Software Development"},{"stringValue":"UI/UX Design"},{"stringValue":"Marketing"}]'
 
 seed_startup "seed-startup-2" "pseudo-owner-agrolink" "AgroLink Rwanda" \
   "Connecting smallholder farmers to premium markets" \
   "B2B agri-tech marketplace helping Rwandan farmers sell directly to supermarkets, hotels and exporters — increasing farmer income by 40% on average." \
-  "Agriculture" "approved" "mvp" 2 23 200 \
+  "Agriculture" "approved" "mvp" 3 23 200 \
   '[{"stringValue":"Business Development"},{"stringValue":"Operations"},{"stringValue":"Research & Analysis"}]'
 
 seed_startup "seed-startup-3" "pseudo-owner-mindbridge" "MindBridge Health" \
   "Mental wellness for African university students" \
   "Anonymous peer-support and licensed therapist sessions via mobile app, partnered with 12 universities across East Africa." \
-  "Health & Wellness" "approved" "growth" 1 89 700 \
+  "Health & Wellness" "approved" "growth" 3 89 700 \
   '[{"stringValue":"Community Management"},{"stringValue":"Software Development"},{"stringValue":"Marketing"}]'
 
 seed_startup "seed-startup-4" "pseudo-owner-payease" "PayEase Africa" \
@@ -159,6 +159,22 @@ seed_opp "seed-opp-5" "seed-startup-2" "AgroLink Rwanda" "Operations Assistant" 
 seed_opp "seed-opp-6" "seed-startup-3" "MindBridge Health" "Community Manager Intern" "Community Management" \
   '[{"stringValue":"Social Media"},{"stringValue":"Community Management"},{"stringValue":"Content Creation"}]' \
   true '\$120/mo' "Flexible" "3 months" "Remote" 18 1 21 143
+
+seed_opp "seed-opp-7" "seed-startup-1" "NexEd Solutions" "Data Analyst Intern" "Data Science" \
+  '[{"stringValue":"Python"},{"stringValue":"SQL"},{"stringValue":"Data Analysis"}]' \
+  true '\$130/mo' "Part-time" "3 months" "Remote" 16 2 7 48
+
+seed_opp "seed-opp-8" "seed-startup-2" "AgroLink Rwanda" "Business Development Associate" "Business Development" \
+  '[{"stringValue":"Sales"},{"stringValue":"Negotiation"},{"stringValue":"CRM"}]' \
+  true '\$110/mo' "Part-time" "4 months" "Kigali" 12 6 9 66
+
+seed_opp "seed-opp-9" "seed-startup-3" "MindBridge Health" "Content Creator" "Content Creation" \
+  '[{"stringValue":"Copywriting"},{"stringValue":"Video Editing"},{"stringValue":"Storytelling"}]' \
+  false '' "Flexible" "2 months" "Remote" 9 4 14 92
+
+seed_opp "seed-opp-10" "seed-startup-3" "MindBridge Health" "Product Management Intern" "Product Management" \
+  '[{"stringValue":"Product Strategy"},{"stringValue":"User Research"},{"stringValue":"Agile"}]' \
+  true '\$140/mo' "Part-time" "4 months" "Hybrid" 21 3 11 77
 
 # ── Applications ────────────────────────────────────────────
 seed_app() { # id oppId oppTitle startupId startupName applicantId applicantName applicantEmail status daysAgo extra_json

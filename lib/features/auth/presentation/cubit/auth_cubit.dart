@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../domain/entities/app_user.dart';
@@ -43,6 +44,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
       emit(AuthAuthenticated(user));
     } on Exception catch (e) {
+      debugPrint('signUp failed: $e');
       emit(AuthError(_parseError(e.toString())));
     }
   }
@@ -53,6 +55,7 @@ class AuthCubit extends Cubit<AuthState> {
       final user = await _repo.signInWithEmail(email: email, password: password);
       emit(AuthAuthenticated(user));
     } on Exception catch (e) {
+      debugPrint('signIn failed: $e');
       emit(AuthError(_parseError(e.toString())));
     }
   }

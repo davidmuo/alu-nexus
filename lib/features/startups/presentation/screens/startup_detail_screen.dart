@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/models/startup_model.dart';
+import '../../../opportunities/data/models/opportunity_model.dart';
+import '../../../opportunities/data/repositories/opportunity_repository.dart';
+import '../../../opportunities/presentation/screens/opportunity_detail_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class StartupDetailScreen extends StatelessWidget {
@@ -138,24 +141,14 @@ class StartupDetailScreen extends StatelessWidget {
                     Text('What they\'re building', style: Theme.of(context).textTheme.titleLarge)
                         .animate().fadeIn(delay: 120.ms),
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: s.focusAreas.map((area) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.07),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              area,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          )).toList(),
+                    Text(
+                      s.focusAreas.join('  ·  '),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.tagPurple,
+                        fontWeight: FontWeight.w600,
+                        height: 1.6,
+                      ),
                     ).animate().fadeIn(delay: 140.ms),
                   ],
                   // Links
@@ -170,44 +163,14 @@ class StartupDetailScreen extends StatelessWidget {
                       _LinkRow(icon: Icons.link, label: 'LinkedIn', url: s.linkedinUrl!),
                   ],
                   const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Text('Open Opportunities', style: Theme.of(context).textTheme.titleLarge),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${s.opportunitiesCount}',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ).animate().fadeIn(delay: 180.ms),
+                  Text('Open positions',
+                          style: Theme.of(context).textTheme.titleLarge)
+                      .animate()
+                      .fadeIn(delay: 180.ms),
                   const SizedBox(height: 12),
-                  if (s.opportunitiesCount == 0)
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.grey50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'No open roles right now. Follow to get notified.',
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: AppColors.grey500,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
+                  _OpenPositions(startupId: s.id)
+                      .animate()
+                      .fadeIn(delay: 200.ms),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -226,6 +189,127 @@ class StartupDetailScreen extends StatelessWidget {
       case 'scaling': return 'Scaling';
       default: return stage;
     }
+  }
+}
+
+/// Live list of the startup's open opportunities — tap through to apply.
+class _OpenPositions extends StatelessWidget {
+  final String startupId;
+  const _OpenPositions({required this.startupId});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<OpportunityModel>>(
+      stream: OpportunityRepository().getStartupOpportunities(startupId),
+      builder: (context, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+        final open =
+            (snap.data ?? const []).where((o) => o.isActive).toList();
+        if (open.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.grey50,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Text(
+                'No open roles right now.',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: AppColors.grey500),
+              ),
+            ),
+          );
+        }
+        return Column(
+          children: open.asMap().entries.map((e) {
+            final opp = e.value;
+            final color =
+                AppColors.cardColors[e.key % AppColors.cardColors.length];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Material(
+                color: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: AppColors.grey200),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OpportunityDetailScreen(
+                        opportunity: opp,
+                        accentColor: color,
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                opp.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${opp.commitment} · ${opp.duration} · ${opp.isPaid ? (opp.compensation ?? 'Paid') : 'Volunteer'}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.tagPurple,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right,
+                            color: AppColors.grey400, size: 22),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
   }
 }
 

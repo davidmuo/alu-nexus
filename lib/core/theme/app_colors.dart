@@ -13,6 +13,9 @@ class AppColors {
   static const Color red = Color(0xFFF5001E);
   static const Color yellow = Color(0xFFFCC636);
 
+  /// Desaturated purple for plain-text tags/labels (no pill background).
+  static const Color tagPurple = Color(0xFF7D6BC9);
+
   static const Color accent = Color(0xFFFCC636);
   static const Color accentLight = Color(0xFFFFE08A);
   static const Color accentDark = Color(0xFFD9A312);

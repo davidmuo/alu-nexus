@@ -165,24 +165,14 @@ class StartupCard extends StatelessWidget {
             ),
             if (startup.focusAreas.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: startup.focusAreas.take(4).map((area) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.07),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        area,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    )).toList(),
+              Text(
+                startup.focusAreas.take(4).join('  ·  '),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.tagPurple,
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
+                ),
               ),
             ],
             const SizedBox(height: 10),
@@ -220,31 +210,14 @@ class _StageChip extends StatelessWidget {
     }
   }
 
-  Color get _color {
-    switch (stage) {
-      case 'idea': return AppColors.info;
-      case 'mvp': return AppColors.accent;
-      case 'growth': return AppColors.success;
-      case 'scaling': return AppColors.primary;
-      default: return AppColors.grey500;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        _label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: _color,
-        ),
+    return Text(
+      _label,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: AppColors.tagPurple,
       ),
     );
   }

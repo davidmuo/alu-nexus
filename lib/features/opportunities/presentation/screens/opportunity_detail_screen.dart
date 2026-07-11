@@ -241,29 +241,15 @@ class _OpportunityDetailScreenState extends State<OpportunityDetailScreen> {
                         .map((r) => _bullet(r, widget.accentColor)),
                     if (opp.skills.isNotEmpty) ...[
                       const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: opp.skills.asMap().entries.map((e) {
-                          final i = e.key % AppColors.skillColors.length;
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.skillColors[i],
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              e.value,
-                              style: TextStyle(
-                                fontFamily: 'Satoshi',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.skillTextColors[i],
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      Text(
+                        opp.skills.join('  ·  '),
+                        style: const TextStyle(
+                          fontFamily: 'Satoshi',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.tagPurple,
+                          height: 1.6,
+                        ),
                       ),
                     ],
                   ],

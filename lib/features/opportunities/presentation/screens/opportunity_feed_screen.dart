@@ -32,9 +32,13 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
     ('Engineering', 'Software Development'),
     ('Design', 'UI/UX Design'),
     ('Marketing', 'Marketing'),
+    ('Data', 'Data Science'),
+    ('Content', 'Content Creation'),
     ('Research', 'Research & Analysis'),
     ('Community', 'Community Management'),
     ('Business', 'Business Development'),
+    ('Product', 'Product Management'),
+    ('Operations', 'Operations'),
   ];
 
   @override
