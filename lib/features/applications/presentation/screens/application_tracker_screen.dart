@@ -74,11 +74,11 @@ class _ApplicationTrackerScreenState extends State<ApplicationTrackerScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: selected ? AppColors.primary : AppColors.white,
+                      color: selected ? AppColors.black : AppColors.white,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
                         color:
-                            selected ? AppColors.primary : AppColors.grey200,
+                            selected ? AppColors.black : AppColors.grey200,
                       ),
                     ),
                     child: Text(

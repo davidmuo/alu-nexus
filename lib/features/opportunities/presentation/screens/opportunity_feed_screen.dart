@@ -22,24 +22,20 @@ class OpportunityFeedScreen extends StatefulWidget {
 
 class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
   final _searchCtrl = TextEditingController();
-  String _selectedType = '';
+
+  /// Top pill tabs: 'discover', 'saved', or an opportunity type.
+  String _tab = 'discover';
   String _selectedCommitment = '';
   bool? _paidFilter;
 
-  static const _categories = [
-    _Category('Engineering', Icons.code_rounded, 'Software Development', 0),
-    _Category('Design', Icons.brush_rounded, 'UI/UX Design', 2),
-    _Category('Marketing', Icons.campaign_rounded, 'Marketing', 4),
-    _Category('Research', Icons.insights_rounded, 'Research & Analysis', 3),
-    _Category('Community', Icons.groups_rounded, 'Community Management', 1),
-    _Category('Business', Icons.trending_up_rounded, 'Business Development', 5),
+  static const _typeTabs = [
+    ('Engineering', 'Software Development'),
+    ('Design', 'UI/UX Design'),
+    ('Marketing', 'Marketing'),
+    ('Research', 'Research & Analysis'),
+    ('Community', 'Community Management'),
+    ('Business', 'Business Development'),
   ];
-
-  bool get _isFiltering =>
-      _searchCtrl.text.isNotEmpty ||
-      _selectedType.isNotEmpty ||
-      _selectedCommitment.isNotEmpty ||
-      _paidFilter != null;
 
   @override
   void initState() {
@@ -53,15 +49,20 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
     super.dispose();
   }
 
-  void _selectCategory(String type) {
-    setState(() => _selectedType = _selectedType == type ? '' : type);
-    context.read<OpportunityCubit>().filterByType(_selectedType);
+  void _selectTab(String tab) {
+    setState(() => _tab = tab);
+    final cubit = context.read<OpportunityCubit>();
+    if (tab == 'discover' || tab == 'saved') {
+      cubit.filterByType('');
+    } else {
+      cubit.filterByType(tab);
+    }
   }
 
   void _clearAll() {
     setState(() {
       _searchCtrl.clear();
-      _selectedType = '';
+      _tab = 'discover';
       _selectedCommitment = '';
       _paidFilter = null;
     });
@@ -82,33 +83,22 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
             padding: EdgeInsets.zero,
             children: [
               _header(context),
-              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                child: Text(
+                  'Find\nOpportunities',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+              ).animate().fadeIn(duration: 250.ms),
+              const SizedBox(height: 18),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _searchRow(context),
               ),
-              const SizedBox(height: 24),
-              _categoryStrip(),
-              const SizedBox(height: 8),
-              BlocBuilder<OpportunityCubit, OpportunityState>(
-                builder: (context, state) {
-                  if (state is OpportunityLoading) return const _ShimmerHome();
-                  if (state is OpportunityError) {
-                    return EmptyStateWidget(
-                      icon: Icons.error_outline,
-                      title: 'Something went wrong',
-                      subtitle: state.message,
-                      actionLabel: 'Retry',
-                      onAction: () =>
-                          context.read<OpportunityCubit>().loadOpportunities(),
-                    );
-                  }
-                  if (state is OpportunityLoaded) {
-                    return _content(context, state.opportunities);
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
+              const SizedBox(height: 18),
+              _pillTabs(),
+              const SizedBox(height: 18),
+              _body(context),
             ],
           ),
         ),
@@ -116,7 +106,7 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
     );
   }
 
-  // ── Header ──────────────────────────────────────────────
+  // ── Header: greeting + bell + avatar ─────────────────────
   Widget _header(BuildContext context) {
     final auth = context.watch<AuthCubit>().state;
     final name = auth is AuthAuthenticated
@@ -125,48 +115,15 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
     final photo = auth is AuthAuthenticated ? auth.user.photoUrl : null;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hello, $name',
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Find your next opportunity',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(color: AppColors.grey500),
-                ),
-              ],
-            ),
-          ),
-          BlocBuilder<NotificationCubit, NotificationState>(
-            builder: (context, state) {
-              final unread =
-                  state is NotificationLoaded ? state.unreadCount : 0;
-              return _CircleIconButton(
-                icon: Icons.notifications_none_rounded,
-                showDot: unread > 0,
-                onTap: () => context.push('/notifications'),
-              );
-            },
-          ),
-          const SizedBox(width: 10),
           Container(
-            width: 44,
-            height: 44,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primarySurface,
+              color: AppColors.black,
               image: photo != null
                   ? DecorationImage(
                       image: NetworkImage(photo), fit: BoxFit.cover)
@@ -177,19 +134,41 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
                 ? Text(
                     name.isNotEmpty ? name[0].toUpperCase() : '?',
                     style: const TextStyle(
-                      color: AppColors.primary,
+                      fontFamily: 'Satoshi',
+                      color: AppColors.white,
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
+                      fontSize: 16,
                     ),
                   )
                 : null,
           ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Hello, $name',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(color: AppColors.grey600),
+            ),
+          ),
+          BlocBuilder<NotificationCubit, NotificationState>(
+            builder: (context, state) {
+              final unread =
+                  state is NotificationLoaded ? state.unreadCount : 0;
+              return _RoundIconButton(
+                icon: Icons.notifications_none_rounded,
+                showDot: unread > 0,
+                onTap: () => context.push('/notifications'),
+              );
+            },
+          ),
         ],
       ),
-    ).animate().fadeIn(duration: 250.ms);
+    );
   }
 
-  // ── Search + filter ─────────────────────────────────────
+  // ── Search + filter ──────────────────────────────────────
   Widget _searchRow(BuildContext context) {
     return Row(
       children: [
@@ -201,7 +180,7 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
               context.read<OpportunityCubit>().search(v);
             },
             decoration: InputDecoration(
-              hintText: 'Search opportunities...',
+              hintText: 'Search for startup or role...',
               prefixIcon: const Icon(Icons.search_rounded,
                   size: 22, color: AppColors.grey400),
               suffixIcon: _searchCtrl.text.isNotEmpty
@@ -213,36 +192,20 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
                       },
                     )
                   : null,
-              filled: true,
               fillColor: AppColors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.grey200),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.grey200),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    const BorderSide(color: AppColors.primary, width: 1.5),
-              ),
             ),
           ),
         ),
         const SizedBox(width: 12),
         Material(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.black,
+          shape: const CircleBorder(),
           child: InkWell(
-            borderRadius: BorderRadius.circular(14),
+            customBorder: const CircleBorder(),
             onTap: _openFilters,
             child: SizedBox(
-              width: 52,
-              height: 52,
+              width: 54,
+              height: 54,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -250,13 +213,13 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
                       color: AppColors.white, size: 22),
                   if (_selectedCommitment.isNotEmpty || _paidFilter != null)
                     Positioned(
-                      top: 12,
-                      right: 13,
+                      top: 13,
+                      right: 14,
                       child: Container(
                         width: 7,
                         height: 7,
                         decoration: const BoxDecoration(
-                          color: AppColors.white,
+                          color: AppColors.yellow,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -270,166 +233,147 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
     );
   }
 
-  // ── Category strip ──────────────────────────────────────
-  Widget _categoryStrip() {
+  // ── Pill tabs: Discover / Saved / categories ─────────────
+  Widget _pillTabs() {
+    Widget pill(String label, String value) {
+      final selected = _tab == value;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: GestureDetector(
+          onTap: () => _selectTab(value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.black : AppColors.white,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: selected ? AppColors.black : AppColors.grey200,
+              ),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Satoshi',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected ? AppColors.white : AppColors.grey700,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
-      height: 96,
-      child: ListView.separated(
+      height: 42,
+      child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (context, i) {
-          final cat = _categories[i];
-          final selected = _selectedType == cat.type;
-          return GestureDetector(
-            onTap: () => _selectCategory(cat.type),
-            child: Column(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primary
-                        : AppColors.skillColors[cat.colorIndex],
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Icon(
-                    cat.icon,
-                    color: selected
-                        ? AppColors.white
-                        : AppColors.skillTextColors[cat.colorIndex],
-                    size: 25,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  cat.label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected ? AppColors.primary : AppColors.grey600,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        children: [
+          pill('Discover', 'discover'),
+          pill('Saved', 'saved'),
+          ..._typeTabs.map((t) => pill(t.$1, t.$2)),
+        ],
       ),
     ).animate().fadeIn(delay: 80.ms);
   }
 
-  // ── Content ─────────────────────────────────────────────
-  Widget _content(BuildContext context, List<OpportunityModel> items) {
-    if (items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 40),
-        child: EmptyStateWidget(
-          icon: Icons.search_off_rounded,
-          title: 'No opportunities found',
-          subtitle: 'Try adjusting your filters or search terms',
-        ),
-      );
-    }
+  // ── Body ─────────────────────────────────────────────────
+  Widget _body(BuildContext context) {
+    return BlocBuilder<OpportunityCubit, OpportunityState>(
+      builder: (context, state) {
+        if (state is OpportunityLoading) return const _ShimmerFeed();
+        if (state is OpportunityError) {
+          return EmptyStateWidget(
+            icon: Icons.error_outline,
+            title: 'Something went wrong',
+            subtitle: state.message,
+            actionLabel: 'Retry',
+            onAction: () =>
+                context.read<OpportunityCubit>().loadOpportunities(),
+          );
+        }
+        if (state is! OpportunityLoaded) return const SizedBox.shrink();
 
-    if (_isFiltering) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionHeader(
-            context,
-            '${items.length} result${items.length == 1 ? '' : 's'}',
-            actionLabel: 'Clear filters',
-            onAction: _clearAll,
-          ),
-          ...items.asMap().entries.map(
-                (e) => OpportunityTile(opportunity: e.value)
-                    .animate()
-                    .fadeIn(delay: (e.key * 40).ms),
-              ),
-          const SizedBox(height: 24),
-        ],
-      );
-    }
+        if (_tab == 'saved') {
+          return ListenableBuilder(
+            listenable: BookmarkStore.instance,
+            builder: (context, _) {
+              final saved = state.opportunities
+                  .where((o) => BookmarkStore.instance.contains(o.id))
+                  .toList();
+              if (saved.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: EmptyStateWidget(
+                    icon: Icons.bookmark_border_rounded,
+                    title: 'Nothing saved yet',
+                    subtitle: 'Tap the bookmark on any card to save it here',
+                  ),
+                );
+              }
+              return _cardList(context, saved);
+            },
+          );
+        }
 
-    // Skill matching: feature the opportunity that overlaps most with the
-    // student's onboarding skills; fall back to the newest posting.
-    final auth = context.read<AuthCubit>().state;
-    final userSkills = auth is AuthAuthenticated
-        ? auth.user.skills.map((s) => s.toLowerCase()).toSet()
-        : <String>{};
-    int matchScore(OpportunityModel o) =>
-        o.skills.where((s) => userSkills.contains(s.toLowerCase())).length;
-
-    var featured = items.first;
-    var bestScore = matchScore(featured);
-    for (final o in items) {
-      final score = matchScore(o);
-      if (score > bestScore) {
-        featured = o;
-        bestScore = score;
-      }
-    }
-    final recent = items.where((o) => o.id != featured.id).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionHeader(context, 'Recommended for you'),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: FeaturedOpportunityCard(
-            opportunity: featured,
-            matchedSkills: bestScore,
-          ).animate().fadeIn(delay: 100.ms),
-        ),
-        const SizedBox(height: 28),
-        if (recent.isNotEmpty)
-          _sectionHeader(context, 'Recent opportunities'),
-        ...recent.asMap().entries.map(
-              (e) => OpportunityTile(opportunity: e.value)
-                  .animate()
-                  .fadeIn(delay: (140 + e.key * 40).ms),
+        if (state.opportunities.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: EmptyStateWidget(
+              icon: Icons.search_off_rounded,
+              title: 'No opportunities found',
+              subtitle: 'Try adjusting your filters or search',
+              actionLabel: 'Clear filters',
+              onAction: _clearAll,
             ),
-        const SizedBox(height: 24),
+          );
+        }
+
+        // Rank the student's best skill match first on Discover.
+        var items = state.opportunities;
+        int bestMatch = 0;
+        if (_tab == 'discover') {
+          final auth = context.read<AuthCubit>().state;
+          final skills = auth is AuthAuthenticated
+              ? auth.user.skills.map((s) => s.toLowerCase()).toSet()
+              : <String>{};
+          int score(OpportunityModel o) => o.skills
+              .where((s) => skills.contains(s.toLowerCase()))
+              .length;
+          items = List.of(state.opportunities)
+            ..sort((a, b) => score(b).compareTo(score(a)));
+          bestMatch = items.isEmpty ? 0 : score(items.first);
+        }
+
+        return _cardList(context, items, firstMatchCount: bestMatch);
+      },
+    );
+  }
+
+  Widget _cardList(BuildContext context, List<OpportunityModel> items,
+      {int firstMatchCount = 0}) {
+    return Column(
+      children: [
+        ...items.asMap().entries.map((e) => Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: OpportunityCard(
+                opportunity: e.value,
+                color: AppColors.cardColors[e.key % AppColors.cardColors.length],
+                matchedSkills: e.key == 0 ? firstMatchCount : 0,
+              ).animate().fadeIn(delay: (e.key * 60).ms).slideY(
+                    begin: 0.05,
+                    end: 0,
+                    duration: 250.ms,
+                  ),
+            )),
+        const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _sectionHeader(BuildContext context, String title,
-      {String? actionLabel, VoidCallback? onAction}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge!
-                .copyWith(fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          if (actionLabel != null)
-            GestureDetector(
-              onTap: onAction,
-              child: Text(
-                actionLabel,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // ── Filter sheet ────────────────────────────────────────
+  // ── Filter sheet ─────────────────────────────────────────
   void _openFilters() {
     String commitment = _selectedCommitment;
     bool? paid = _paidFilter;
@@ -438,7 +382,7 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
       backgroundColor: AppColors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (sheetCtx) {
         return StatefulBuilder(
@@ -449,16 +393,17 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.primary : AppColors.grey100,
+                    color: selected ? AppColors.black : AppColors.grey100,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
                     label,
                     style: TextStyle(
+                      fontFamily: 'Satoshi',
                       color: selected ? AppColors.white : AppColors.grey700,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
                   ),
@@ -477,17 +422,14 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.grey300,
+                        color: AppColors.grey200,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   Text('Filters',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(fontWeight: FontWeight.w700)),
+                      style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 20),
                   Text('Commitment',
                       style: Theme.of(context).textTheme.titleSmall),
@@ -559,31 +501,37 @@ class _OpportunityFeedScreenState extends State<OpportunityFeedScreen> {
   }
 }
 
-// ── Featured card: flat, solid primary ────────────────────
-class FeaturedOpportunityCard extends StatelessWidget {
+// ── Color-blocked opportunity card ─────────────────────────
+class OpportunityCard extends StatelessWidget {
   final OpportunityModel opportunity;
-
-  /// Number of the viewer's skills that this opportunity requires.
-  /// When > 0 a "Matches your skills" tag is shown.
+  final Color color;
   final int matchedSkills;
 
-  const FeaturedOpportunityCard({
+  const OpportunityCard({
     super.key,
     required this.opportunity,
+    this.color = AppColors.primary,
     this.matchedSkills = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fg = AppColors.onCard(color);
+    final fgSoft = fg.withValues(alpha: 0.75);
+    final overlay = fg.withValues(alpha: fg == AppColors.black ? 0.08 : 0.16);
+
     return Material(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(20),
+      color: color,
+      borderRadius: BorderRadius.circular(26),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(26),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => OpportunityDetailScreen(opportunity: opportunity),
+            builder: (_) => OpportunityDetailScreen(
+              opportunity: opportunity,
+              accentColor: color,
+            ),
           ),
         ),
         child: Padding(
@@ -594,112 +542,134 @@ class FeaturedOpportunityCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: fg == AppColors.black
+                          ? AppColors.black
+                          : AppColors.white,
+                      shape: BoxShape.circle,
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: opportunity.startupLogoUrl != null
                         ? Image.network(opportunity.startupLogoUrl!,
                             fit: BoxFit.cover)
-                        : const Icon(Icons.business_rounded,
-                            color: AppColors.primary, size: 22),
+                        : Icon(Icons.business_rounded,
+                            color: fg == AppColors.black
+                                ? AppColors.yellow
+                                : color,
+                            size: 22),
                   ),
-                  if (matchedSkills > 0) ...[
-                    const SizedBox(width: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Matches $matchedSkills of your skills',
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          opportunity.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Satoshi',
+                            color: fg,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                opportunity.startupName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Satoshi',
+                                  color: fgSoft,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            if (opportunity.startupVerified) ...[
+                              const SizedBox(width: 4),
+                              Icon(Icons.verified, color: fgSoft, size: 14),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                  const Spacer(),
+                  ),
                   _BookmarkButton(
                     opportunityId: opportunity.id,
-                    onPrimary: true,
+                    color: fg,
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                opportunity.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                  height: 1.25,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      opportunity.startupName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.white.withValues(alpha: 0.8),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  if (opportunity.startupVerified) ...[
-                    const SizedBox(width: 4),
-                    Icon(Icons.verified,
-                        color: AppColors.white.withValues(alpha: 0.9),
-                        size: 14),
-                  ],
                 ],
               ),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children:
-                    opportunity.skills.take(3).map(_chip).toList(),
+                children: [
+                  if (matchedSkills > 0)
+                    _pill('★ Matches $matchedSkills skills', overlay, fg),
+                  _pill(opportunity.commitment, overlay, fg),
+                  _pill(opportunity.duration, overlay, fg),
+                  _pill(opportunity.location, overlay, fg),
+                  if (opportunity.isClosingSoon)
+                    _pill('Closing soon', overlay, fg),
+                ],
               ),
               const SizedBox(height: 18),
               Row(
                 children: [
-                  _meta(Icons.schedule_rounded, opportunity.commitment),
-                  const SizedBox(width: 16),
-                  _meta(
-                    Icons.payments_outlined,
-                    opportunity.isPaid ? 'Paid' : 'Volunteer',
-                  ),
-                  const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 9),
+                        horizontal: 22, vertical: 11),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: fg == AppColors.black
+                          ? AppColors.black
+                          : AppColors.white,
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Text(
+                    child: Text(
                       'View',
                       style: TextStyle(
-                        color: AppColors.primary,
+                        fontFamily: 'Satoshi',
+                        color: fg == AppColors.black
+                            ? AppColors.white
+                            : AppColors.black,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
+                  ),
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        opportunity.isPaid
+                            ? (opportunity.compensation ?? 'Paid')
+                            : 'Volunteer',
+                        style: TextStyle(
+                          fontFamily: 'Satoshi',
+                          color: fg,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        'Posted ${_ago(opportunity.createdAt)}',
+                        style: TextStyle(
+                          fontFamily: 'Satoshi',
+                          color: fgSoft,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -710,179 +680,40 @@ class FeaturedOpportunityCard extends StatelessWidget {
     );
   }
 
-  Widget _chip(String label) {
+  Widget _pill(String label, Color bg, Color fg) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.white.withValues(alpha: 0.14),
+        color: bg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: AppColors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+        style: TextStyle(
+          fontFamily: 'Satoshi',
+          color: fg,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 
-  Widget _meta(IconData icon, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: AppColors.white.withValues(alpha: 0.8), size: 15),
-        const SizedBox(width: 5),
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.white.withValues(alpha: 0.8),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
+  String _ago(DateTime d) {
+    final diff = DateTime.now().difference(d);
+    if (diff.inDays >= 7) return '${diff.inDays ~/ 7}w ago';
+    if (diff.inDays >= 1) return '${diff.inDays}d ago';
+    if (diff.inHours >= 1) return '${diff.inHours}h ago';
+    return 'just now';
   }
 }
 
-// ── Compact opportunity tile ──────────────────────────────
-class OpportunityTile extends StatelessWidget {
-  final OpportunityModel opportunity;
-  const OpportunityTile({super.key, required this.opportunity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      child: Material(
-        color: AppColors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.grey200),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  OpportunityDetailScreen(opportunity: opportunity),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySurface,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: opportunity.startupLogoUrl != null
-                      ? Image.network(opportunity.startupLogoUrl!,
-                          fit: BoxFit.cover)
-                      : const Icon(Icons.business_rounded,
-                          color: AppColors.primary, size: 23),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        opportunity.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              opportunity.startupName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
-                                  .copyWith(color: AppColors.grey500),
-                            ),
-                          ),
-                          if (opportunity.startupVerified) ...[
-                            const SizedBox(width: 4),
-                            const Icon(Icons.verified,
-                                color: AppColors.primary, size: 13),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 9),
-                      Row(
-                        children: [
-                          _miniTag(
-                            opportunity.commitment,
-                            AppColors.primarySurface,
-                            AppColors.primary,
-                          ),
-                          const SizedBox(width: 6),
-                          _miniTag(
-                            opportunity.isPaid ? 'Paid' : 'Volunteer',
-                            opportunity.isPaid
-                                ? AppColors.successLight
-                                : AppColors.grey100,
-                            opportunity.isPaid
-                                ? AppColors.success
-                                : AppColors.grey600,
-                          ),
-                          if (opportunity.isClosingSoon) ...[
-                            const SizedBox(width: 6),
-                            _miniTag('Closing soon', AppColors.errorLight,
-                                AppColors.error),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                _BookmarkButton(opportunityId: opportunity.id),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _miniTag(String label, Color bg, Color fg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(color: fg, fontSize: 10, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-// ── Shared small widgets ──────────────────────────────────
+// ── Shared small widgets ────────────────────────────────────
 class _BookmarkButton extends StatelessWidget {
   final String opportunityId;
-  final bool onPrimary;
+  final Color color;
 
-  const _BookmarkButton({required this.opportunityId, this.onPrimary = false});
+  const _BookmarkButton({required this.opportunityId, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -895,10 +726,8 @@ class _BookmarkButton extends StatelessWidget {
           onPressed: () => BookmarkStore.instance.toggle(opportunityId),
           icon: Icon(
             saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-            size: 22,
-            color: onPrimary
-                ? AppColors.white
-                : (saved ? AppColors.primary : AppColors.grey400),
+            size: 24,
+            color: color,
           ),
         );
       },
@@ -906,12 +735,12 @@ class _BookmarkButton extends StatelessWidget {
   }
 }
 
-class _CircleIconButton extends StatelessWidget {
+class _RoundIconButton extends StatelessWidget {
   final IconData icon;
   final bool showDot;
   final VoidCallback onTap;
 
-  const _CircleIconButton({
+  const _RoundIconButton({
     required this.icon,
     required this.onTap,
     this.showDot = false,
@@ -921,9 +750,7 @@ class _CircleIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.white,
-      shape: const CircleBorder(
-        side: BorderSide(color: AppColors.grey200),
-      ),
+      shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
@@ -933,7 +760,7 @@ class _CircleIconButton extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Icon(icon, color: AppColors.grey800, size: 22),
+              Icon(icon, color: AppColors.grey900, size: 22),
               if (showDot)
                 Positioned(
                   top: 11,
@@ -942,7 +769,7 @@ class _CircleIconButton extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppColors.error,
+                      color: AppColors.red,
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.white, width: 1.5),
                     ),
@@ -956,16 +783,8 @@ class _CircleIconButton extends StatelessWidget {
   }
 }
 
-class _Category {
-  final String label;
-  final IconData icon;
-  final String type;
-  final int colorIndex;
-  const _Category(this.label, this.icon, this.type, this.colorIndex);
-}
-
-class _ShimmerHome extends StatelessWidget {
-  const _ShimmerHome();
+class _ShimmerFeed extends StatelessWidget {
+  const _ShimmerFeed();
 
   @override
   Widget build(BuildContext context) {
@@ -975,28 +794,17 @@ class _ShimmerHome extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
+          children: List.generate(
+            3,
+            (_) => Container(
               height: 190,
+              margin: const EdgeInsets.only(bottom: 14),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(26),
               ),
             ),
-            const SizedBox(height: 24),
-            ...List.generate(
-              3,
-              (_) => Container(
-                height: 84,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

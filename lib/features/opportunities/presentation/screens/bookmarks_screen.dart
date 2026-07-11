@@ -54,13 +54,18 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
                   );
                 }
                 return ListView(
-                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                   children: saved
                       .asMap()
                       .entries
-                      .map((e) => OpportunityTile(opportunity: e.value)
-                          .animate()
-                          .fadeIn(delay: (e.key * 40).ms))
+                      .map((e) => Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: OpportunityCard(
+                              opportunity: e.value,
+                              color: AppColors.cardColors[
+                                  e.key % AppColors.cardColors.length],
+                            ).animate().fadeIn(delay: (e.key * 40).ms),
+                          ))
                       .toList(),
                 );
               }

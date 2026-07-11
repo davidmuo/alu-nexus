@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
+/// App theme: Satoshi type, bold black headings, pill-shaped controls,
+/// clean near-white surfaces that let the color-blocked cards pop.
 class AppTheme {
   AppTheme._();
+
+  static const String _font = 'Satoshi';
+
+  static TextStyle _t(double size, FontWeight weight, Color color,
+          {double? height}) =>
+      TextStyle(
+        fontFamily: _font,
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height,
+      );
 
   static ThemeData get light {
     final base = ThemeData.light(useMaterial3: true);
@@ -11,126 +24,103 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         primary: AppColors.primary,
-        secondary: AppColors.accent,
+        secondary: AppColors.yellow,
         error: AppColors.error,
         surface: AppColors.white,
         onPrimary: AppColors.white,
         onSecondary: AppColors.black,
         onSurface: AppColors.grey900,
       ),
-      textTheme: GoogleFonts.dmSansTextTheme(base.textTheme).copyWith(
-        displayLarge: GoogleFonts.dmSans(
-          fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.grey900,
-        ),
-        displayMedium: GoogleFonts.dmSans(
-          fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.grey900,
-        ),
-        displaySmall: GoogleFonts.dmSans(
-          fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
-        headlineLarge: GoogleFonts.dmSans(
-          fontSize: 22, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
-        headlineMedium: GoogleFonts.dmSans(
-          fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
-        headlineSmall: GoogleFonts.dmSans(
-          fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
-        titleLarge: GoogleFonts.dmSans(
-          fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
-        titleMedium: GoogleFonts.dmSans(
-          fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.grey900,
-        ),
-        titleSmall: GoogleFonts.dmSans(
-          fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey700,
-        ),
-        bodyLarge: GoogleFonts.dmSans(
-          fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.grey800,
-        ),
-        bodyMedium: GoogleFonts.dmSans(
-          fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.grey700,
-        ),
-        bodySmall: GoogleFonts.dmSans(
-          fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.grey600,
-        ),
-        labelLarge: GoogleFonts.dmSans(
-          fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.white,
-        ),
-      ),
+      textTheme: base.textTheme
+          .apply(fontFamily: _font)
+          .copyWith(
+            displayLarge: _t(34, FontWeight.w900, AppColors.grey900, height: 1.1),
+            displayMedium: _t(30, FontWeight.w900, AppColors.grey900, height: 1.15),
+            displaySmall: _t(26, FontWeight.w900, AppColors.grey900, height: 1.15),
+            headlineLarge: _t(23, FontWeight.w800, AppColors.grey900),
+            headlineMedium: _t(21, FontWeight.w800, AppColors.grey900),
+            headlineSmall: _t(19, FontWeight.w700, AppColors.grey900),
+            titleLarge: _t(17, FontWeight.w700, AppColors.grey900),
+            titleMedium: _t(15, FontWeight.w600, AppColors.grey900),
+            titleSmall: _t(13, FontWeight.w600, AppColors.grey600),
+            bodyLarge: _t(16, FontWeight.w400, AppColors.grey800),
+            bodyMedium: _t(14, FontWeight.w400, AppColors.grey700),
+            bodySmall: _t(12, FontWeight.w400, AppColors.grey500),
+            labelLarge: _t(15, FontWeight.w700, AppColors.white),
+          ),
       appBarTheme: AppBarTheme(
         elevation: 0,
-        scrolledUnderElevation: 1,
-        backgroundColor: AppColors.white,
+        scrolledUnderElevation: 0,
+        backgroundColor: AppColors.grey50,
         foregroundColor: AppColors.grey900,
-        titleTextStyle: GoogleFonts.dmSans(
-          fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.grey900,
-        ),
+        titleTextStyle: _t(17, FontWeight.w700, AppColors.grey900),
         iconTheme: const IconThemeData(color: AppColors.grey900),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
+          disabledBackgroundColor: AppColors.grey200,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          shape: const StadiumBorder(),
+          textStyle: _t(15, FontWeight.w700, AppColors.white),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
+          foregroundColor: AppColors.black,
+          side: const BorderSide(color: AppColors.black, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          shape: const StadiumBorder(),
+          textStyle: _t(15, FontWeight.w700, AppColors.black),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: _t(14, FontWeight.w700, AppColors.primary),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.grey50,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        fillColor: AppColors.grey100,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: AppColors.black, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        hintStyle: GoogleFonts.dmSans(color: AppColors.grey400, fontSize: 14),
-        labelStyle: GoogleFonts.dmSans(color: AppColors.grey600, fontSize: 14),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        hintStyle: _t(14, FontWeight.w400, AppColors.grey400),
+        labelStyle: _t(14, FontWeight.w500, AppColors.grey600),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.grey200),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         color: AppColors.white,
-        margin: const EdgeInsets.all(0),
+        margin: EdgeInsets.zero,
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.grey100,
-        labelStyle: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w500),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        labelStyle: _t(12, FontWeight.w600, AppColors.grey700),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        shape: const StadiumBorder(),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.grey100,
@@ -140,30 +130,30 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.grey50,
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.white,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: AppColors.black,
         unselectedItemColor: AppColors.grey400,
         type: BottomNavigationBarType.fixed,
-        elevation: 8,
-        selectedLabelStyle: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w400),
+        elevation: 12,
+        selectedLabelStyle: _t(11, FontWeight.w700, AppColors.black),
+        unselectedLabelStyle: _t(11, FontWeight.w500, AppColors.grey400),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        backgroundColor: AppColors.grey900,
-        contentTextStyle: GoogleFonts.dmSans(color: AppColors.white, fontSize: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        backgroundColor: AppColors.black,
+        contentTextStyle: _t(14, FontWeight.w500, AppColors.white),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.black,
         foregroundColor: AppColors.white,
-        elevation: 4,
+        elevation: 2,
       ),
       tabBarTheme: TabBarThemeData(
-        labelColor: AppColors.primary,
-        unselectedLabelColor: AppColors.grey500,
-        indicatorColor: AppColors.primary,
-        labelStyle: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w400),
+        labelColor: AppColors.black,
+        unselectedLabelColor: AppColors.grey400,
+        indicatorColor: AppColors.black,
+        labelStyle: _t(13, FontWeight.w700, AppColors.black),
+        unselectedLabelStyle: _t(13, FontWeight.w500, AppColors.grey400),
       ),
     );
   }

@@ -8,12 +8,18 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../applications/data/repositories/application_repository.dart';
 import '../../../../core/services/bookmark_store.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
 
+/// Dark, color-blocked detail screen: black canvas, the feed card's color
+/// as the identity block, white content sections.
 class OpportunityDetailScreen extends StatefulWidget {
   final OpportunityModel opportunity;
+  final Color accentColor;
 
-  const OpportunityDetailScreen({super.key, required this.opportunity});
+  const OpportunityDetailScreen({
+    super.key,
+    required this.opportunity,
+    this.accentColor = AppColors.yellow,
+  });
 
   @override
   State<OpportunityDetailScreen> createState() =>
@@ -46,215 +52,257 @@ class _OpportunityDetailScreenState extends State<OpportunityDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final opp = widget.opportunity;
+    final accent = widget.accentColor;
+    final onAccent = AppColors.onCard(accent);
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.black,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: const Text('Opportunity details'),
+        backgroundColor: AppColors.black,
+        foregroundColor: AppColors.white,
+        title: const Text(
+          'Opportunity details',
+          style: TextStyle(color: AppColors.white),
+        ),
         centerTitle: true,
-        actions: [
-          ListenableBuilder(
-            listenable: BookmarkStore.instance,
-            builder: (context, _) {
-              final saved = BookmarkStore.instance.contains(opp.id);
-              return IconButton(
-                icon: Icon(
-                  saved
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_border_rounded,
-                  color: saved ? AppColors.primary : AppColors.grey700,
-                ),
-                onPressed: () => BookmarkStore.instance.toggle(opp.id),
-              );
-            },
-          ),
-        ],
+        iconTheme: const IconThemeData(color: AppColors.white),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Identity block
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySurface,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: opp.startupLogoUrl != null
-                      ? Image.network(opp.startupLogoUrl!, fit: BoxFit.cover)
-                      : const Icon(Icons.business_rounded,
-                          color: AppColors.primary, size: 30),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            // ── Identity block in the card's color ──
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        opp.title,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall!
-                            .copyWith(height: 1.25),
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: onAccent == AppColors.black
+                              ? AppColors.black
+                              : AppColors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: opp.startupLogoUrl != null
+                            ? Image.network(opp.startupLogoUrl!,
+                                fit: BoxFit.cover)
+                            : Icon(
+                                Icons.business_rounded,
+                                color: onAccent == AppColors.black
+                                    ? accent
+                                    : accent,
+                                size: 24,
+                              ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              opp.startupName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(color: AppColors.grey500),
+                      const Spacer(),
+                      ListenableBuilder(
+                        listenable: BookmarkStore.instance,
+                        builder: (context, _) {
+                          final saved =
+                              BookmarkStore.instance.contains(opp.id);
+                          return IconButton(
+                            onPressed: () =>
+                                BookmarkStore.instance.toggle(opp.id),
+                            icon: Icon(
+                              saved
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                              color: onAccent,
+                              size: 26,
                             ),
-                          ),
-                          if (opp.startupVerified) ...[
-                            const SizedBox(width: 4),
-                            const Icon(Icons.verified,
-                                color: AppColors.primary, size: 15),
-                          ],
-                        ],
+                          );
+                        },
                       ),
                     ],
                   ),
-                ),
-              ],
-            ).animate().fadeIn(),
-            const SizedBox(height: 18),
-            // Skill chips
-            if (opp.skills.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: opp.skills.asMap().entries.map((e) {
-                  final i = e.key % AppColors.skillColors.length;
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.skillColors[i],
-                      borderRadius: BorderRadius.circular(20),
+                  const SizedBox(height: 14),
+                  Text(
+                    opp.title,
+                    style: TextStyle(
+                      fontFamily: 'Satoshi',
+                      color: onAccent,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      height: 1.15,
                     ),
-                    child: Text(
-                      e.value,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.skillTextColors[i],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          opp.startupName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Satoshi',
+                            color: onAccent.withValues(alpha: 0.75),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ).animate().fadeIn(delay: 50.ms),
-            const SizedBox(height: 24),
-            // Meta rows
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.grey50,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _MetaRow(
-                    icon: Icons.schedule_rounded,
-                    label: '${opp.commitment} · ${opp.duration}',
+                      if (opp.startupVerified) ...[
+                        const SizedBox(width: 4),
+                        Icon(Icons.verified,
+                            color: onAccent.withValues(alpha: 0.85),
+                            size: 15),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _MetaRow(
-                    icon: Icons.location_on_outlined,
-                    label: opp.location,
-                  ),
-                  const SizedBox(height: 12),
-                  _MetaRow(
-                    icon: Icons.payments_outlined,
-                    label: opp.isPaid
-                        ? 'Paid${opp.compensation != null ? ' · ${opp.compensation}' : ''}'
-                        : 'Unpaid · Volunteer',
-                  ),
-                  const SizedBox(height: 12),
-                  _MetaRow(
-                    icon: Icons.event_outlined,
-                    label: 'Apply by ${_formatDate(opp.deadline)}',
-                    highlight: opp.isClosingSoon,
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Text(
+                        opp.isPaid
+                            ? (opp.compensation ?? 'Paid')
+                            : 'Volunteer role',
+                        style: TextStyle(
+                          fontFamily: 'Satoshi',
+                          color: onAccent,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Posted ${_ago(opp.createdAt)}',
+                        style: TextStyle(
+                          fontFamily: 'Satoshi',
+                          color: onAccent.withValues(alpha: 0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ).animate().fadeIn(delay: 100.ms),
-            const SizedBox(height: 28),
-            _Section(
+            ).animate().fadeIn(),
+            const SizedBox(height: 12),
+            // ── Tag pills row ──
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _darkPill(Icons.schedule_rounded, opp.commitment),
+                _darkPill(Icons.hourglass_bottom_rounded, opp.duration),
+                _darkPill(Icons.location_on_outlined, opp.location),
+                _darkPill(
+                  Icons.event_outlined,
+                  'Apply by ${_date(opp.deadline)}',
+                  highlight: opp.isClosingSoon,
+                ),
+              ],
+            ).animate().fadeIn(delay: 60.ms),
+            const SizedBox(height: 12),
+            // ── Content sections ──
+            _whiteCard(
               title: 'About this role',
               child: Text(
                 opp.description,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: AppColors.grey700,
-                      height: 1.6,
-                    ),
+                style: const TextStyle(
+                  fontFamily: 'Satoshi',
+                  color: AppColors.grey700,
+                  fontSize: 14.5,
+                  height: 1.6,
+                ),
               ),
-            ).animate().fadeIn(delay: 150.ms),
+            ).animate().fadeIn(delay: 100.ms),
             if (opp.responsibilities.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              _Section(
+              const SizedBox(height: 12),
+              _whiteCard(
                 title: 'What you\'ll do',
                 child: Column(
                   children: opp.responsibilities
-                      .map((r) => _BulletItem(text: r))
+                      .map((r) => _bullet(r, widget.accentColor))
                       .toList(),
                 ),
-              ).animate().fadeIn(delay: 200.ms),
+              ).animate().fadeIn(delay: 140.ms),
             ],
             if (opp.requirements.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              _Section(
-                title: 'What we\'re looking for',
+              const SizedBox(height: 12),
+              _whiteCard(
+                title: 'Skills & requirements',
                 child: Column(
-                  children: opp.requirements
-                      .map((r) => _BulletItem(text: r))
-                      .toList(),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...opp.requirements
+                        .map((r) => _bullet(r, widget.accentColor)),
+                    if (opp.skills.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: opp.skills.asMap().entries.map((e) {
+                          final i = e.key % AppColors.skillColors.length;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.skillColors[i],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              e.value,
+                              style: TextStyle(
+                                fontFamily: 'Satoshi',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.skillTextColors[i],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ],
                 ),
-              ).animate().fadeIn(delay: 250.ms),
+              ).animate().fadeIn(delay: 180.ms),
             ],
             if (opp.perks != null && opp.perks!.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              _Section(
+              const SizedBox(height: 12),
+              _whiteCard(
                 title: 'Perks & benefits',
                 child: Text(
                   opp.perks!,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: AppColors.grey700,
-                        height: 1.6,
-                      ),
+                  style: const TextStyle(
+                    fontFamily: 'Satoshi',
+                    color: AppColors.grey700,
+                    fontSize: 14.5,
+                    height: 1.6,
+                  ),
                 ),
-              ).animate().fadeIn(delay: 300.ms),
+              ).animate().fadeIn(delay: 220.ms),
             ],
-            const SizedBox(height: 28),
-            // Stats
+            const SizedBox(height: 12),
+            // ── Stats strip ──
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey200),
-                borderRadius: BorderRadius.circular(16),
+                color: AppColors.grey900,
+                borderRadius: BorderRadius.circular(22),
               ),
               child: Row(
                 children: [
-                  _Stat(value: '${opp.applicationCount}', label: 'Applicants'),
+                  _stat('${opp.applicationCount}', 'Applicants'),
                   _statDivider(),
-                  _Stat(value: '${opp.viewCount}', label: 'Views'),
+                  _stat('${opp.viewCount}', 'Views'),
                   _statDivider(),
-                  _Stat(value: '${opp.maxApplicants}', label: 'Spots'),
+                  _stat('${opp.maxApplicants}', 'Spots'),
                 ],
               ),
-            ).animate().fadeIn(delay: 350.ms),
+            ).animate().fadeIn(delay: 260.ms),
           ],
         ),
       ),
@@ -268,51 +316,141 @@ class _OpportunityDetailScreenState extends State<OpportunityDetailScreen> {
     );
   }
 
-  Widget _statDivider() =>
-      Container(width: 1, height: 32, color: AppColors.grey200);
+  Widget _darkPill(IconData icon, String label, {bool highlight = false}) {
+    final color = highlight ? AppColors.red : AppColors.white;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      decoration: BoxDecoration(
+        color: AppColors.grey900,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color.withValues(alpha: 0.85)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Satoshi',
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  String _formatDate(DateTime date) {
+  Widget _whiteCard({required String title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Satoshi',
+              color: AppColors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _bullet(String text, Color accent) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 7),
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: accent == AppColors.yellow
+                  ? AppColors.accentDark
+                  : accent,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontFamily: 'Satoshi',
+                color: AppColors.grey700,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stat(String value, String label) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Satoshi',
+              color: AppColors.white,
+              fontSize: 19,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Satoshi',
+              color: AppColors.white.withValues(alpha: 0.6),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statDivider() => Container(
+      width: 1, height: 32, color: AppColors.white.withValues(alpha: 0.12));
+
+  String _date(DateTime date) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    return '${months[date.month - 1]} ${date.day}';
+  }
+
+  String _ago(DateTime d) {
+    final diff = DateTime.now().difference(d);
+    if (diff.inDays >= 7) return '${diff.inDays ~/ 7}w ago';
+    if (diff.inDays >= 1) return '${diff.inDays}d ago';
+    if (diff.inHours >= 1) return '${diff.inHours}h ago';
+    return 'just now';
   }
 }
 
-class _MetaRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool highlight;
-
-  const _MetaRow({
-    required this.icon,
-    required this.label,
-    this.highlight = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = highlight ? AppColors.error : AppColors.grey700;
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: highlight ? AppColors.error : AppColors.grey500),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
+// ── Bottom bar: Save square + Apply pill ───────────────────
 class _BottomBar extends StatelessWidget {
   final bool hasApplied;
   final OpportunityModel opportunity;
@@ -327,136 +465,97 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.grey200)),
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 30),
+      color: AppColors.black,
       child: hasApplied
           ? Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: AppColors.successLight,
-                borderRadius: BorderRadius.circular(14),
+                color: AppColors.grey900,
+                borderRadius: BorderRadius.circular(30),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle, color: AppColors.success),
-                  const SizedBox(width: 8),
+                  Icon(Icons.check_circle, color: AppColors.success),
+                  SizedBox(width: 8),
                   Text(
                     'Application submitted',
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          color: AppColors.success,
-                        ),
+                    style: TextStyle(
+                      fontFamily: 'Satoshi',
+                      color: AppColors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
             )
-          : AppButtonFullWidth(
-              label: opportunity.isExpired
-                  ? 'This opportunity has closed'
-                  : 'Apply now',
-              onPressed: opportunity.isExpired
-                  ? null
-                  : () async {
-                      final applied = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ApplyScreen(opportunity: opportunity),
+          : Row(
+              children: [
+                ListenableBuilder(
+                  listenable: BookmarkStore.instance,
+                  builder: (context, _) {
+                    final saved =
+                        BookmarkStore.instance.contains(opportunity.id);
+                    return Material(
+                      color: AppColors.grey900,
+                      borderRadius: BorderRadius.circular(18),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () =>
+                            BookmarkStore.instance.toggle(opportunity.id),
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Icon(
+                            saved
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
+                            color: AppColors.white,
+                            size: 24,
+                          ),
                         ),
-                      );
-                      if (applied == true) onApplied();
-                    },
-            ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final Widget child;
-
-  const _Section({required this.title, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 12),
-        child,
-      ],
-    );
-  }
-}
-
-class _BulletItem extends StatelessWidget {
-  final String text;
-  const _BulletItem({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 7),
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.grey700,
-                    height: 1.5,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Stat extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _Stat({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                  color: AppColors.grey900,
-                  fontWeight: FontWeight.w700,
+                      ),
+                    );
+                  },
                 ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        disabledBackgroundColor: AppColors.grey800,
+                      ),
+                      onPressed: opportunity.isExpired
+                          ? null
+                          : () async {
+                              final applied = await Navigator.push<bool>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ApplyScreen(opportunity: opportunity),
+                                ),
+                              );
+                              if (applied == true) onApplied();
+                            },
+                      child: Text(
+                        opportunity.isExpired
+                            ? 'Opportunity closed'
+                            : 'Apply Now  →',
+                        style: const TextStyle(
+                          fontFamily: 'Satoshi',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

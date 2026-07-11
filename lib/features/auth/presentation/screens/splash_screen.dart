@@ -52,49 +52,60 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: Center(
+        backgroundColor: AppColors.black,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 84,
-                height: 84,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: const Icon(Icons.hub_rounded,
-                    size: 42, color: AppColors.white),
+                    size: 28, color: AppColors.white),
               ).animate().fadeIn(duration: 400.ms).scale(
                     begin: const Offset(0.9, 0.9),
                     end: const Offset(1, 1),
                     curve: Curves.easeOut,
                   ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
+              const Text(
+                'Your next\nstartup experience\nstarts here',
+                style: TextStyle(
+                  fontFamily: 'Satoshi',
+                  color: AppColors.white,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
+                  height: 1.15,
+                ),
+              ).animate().fadeIn(delay: 250.ms, duration: 500.ms).slideY(
+                    begin: 0.08,
+                    end: 0,
+                  ),
+              const SizedBox(height: 12),
               Text(
-                'ALU Nexus',
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                      color: AppColors.grey900,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
-              const SizedBox(height: 8),
-              Text(
-                'Where ALU students meet startups',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: AppColors.grey500,
-                    ),
-              ).animate().fadeIn(delay: 500.ms, duration: 500.ms),
-              const SizedBox(height: 48),
+                'ALU Nexus — where ALU students meet\nstudent-led startups.',
+                style: TextStyle(
+                  fontFamily: 'Satoshi',
+                  color: AppColors.white.withValues(alpha: 0.6),
+                  fontSize: 15,
+                  height: 1.45,
+                ),
+              ).animate().fadeIn(delay: 450.ms, duration: 500.ms),
+              const SizedBox(height: 44),
               const SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation(AppColors.primary),
                 ),
-              ).animate().fadeIn(delay: 900.ms),
+              ).animate().fadeIn(delay: 800.ms),
             ],
           ),
         ),
