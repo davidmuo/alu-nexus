@@ -138,7 +138,7 @@ seed_opp() { # id startupId startupName title type skills_json paid comp commitm
 echo "Creating opportunities..."
 seed_opp "seed-opp-1" "seed-startup-1" "NexEd Solutions" "Flutter Developer Intern" "Software Development" \
   '[{"stringValue":"Flutter"},{"stringValue":"Dart"},{"stringValue":"Firebase"}]' \
-  true '\$150/mo' "Part-time" "3 months" "Remote" 14 2 12 89
+  true '$150/mo' "Part-time" "3 months" "Remote" 14 2 12 89
 
 seed_opp "seed-opp-2" "seed-startup-1" "NexEd Solutions" "UI/UX Design Intern" "UI/UX Design" \
   '[{"stringValue":"Figma"},{"stringValue":"User Research"},{"stringValue":"Prototyping"}]' \
@@ -146,11 +146,11 @@ seed_opp "seed-opp-2" "seed-startup-1" "NexEd Solutions" "UI/UX Design Intern" "
 
 seed_opp "seed-opp-3" "seed-startup-1" "NexEd Solutions" "Marketing Intern" "Marketing" \
   '[{"stringValue":"Social Media"},{"stringValue":"Copywriting"}]' \
-  true '\$80/mo' "Part-time" "2 months" "Hybrid" 20 3 19 102
+  true '$80/mo' "Part-time" "2 months" "Hybrid" 20 3 19 102
 
 seed_opp "seed-opp-4" "seed-startup-2" "AgroLink Rwanda" "Market Research Analyst" "Research & Analysis" \
   '[{"stringValue":"Market Research"},{"stringValue":"Excel"},{"stringValue":"Data Analysis"}]' \
-  true '\$100/mo' "Part-time" "2 months" "Kigali" 10 4 5 31
+  true '$100/mo' "Part-time" "2 months" "Kigali" 10 4 5 31
 
 seed_opp "seed-opp-5" "seed-startup-2" "AgroLink Rwanda" "Operations Assistant" "Operations" \
   '[{"stringValue":"Operations"},{"stringValue":"Communication"}]' \
@@ -158,15 +158,15 @@ seed_opp "seed-opp-5" "seed-startup-2" "AgroLink Rwanda" "Operations Assistant" 
 
 seed_opp "seed-opp-6" "seed-startup-3" "MindBridge Health" "Community Manager Intern" "Community Management" \
   '[{"stringValue":"Social Media"},{"stringValue":"Community Management"},{"stringValue":"Content Creation"}]' \
-  true '\$120/mo' "Flexible" "3 months" "Remote" 18 1 21 143
+  true '$120/mo' "Flexible" "3 months" "Remote" 18 1 21 143
 
 seed_opp "seed-opp-7" "seed-startup-1" "NexEd Solutions" "Data Analyst Intern" "Data Science" \
   '[{"stringValue":"Python"},{"stringValue":"SQL"},{"stringValue":"Data Analysis"}]' \
-  true '\$130/mo' "Part-time" "3 months" "Remote" 16 2 7 48
+  true '$130/mo' "Part-time" "3 months" "Remote" 16 2 7 48
 
 seed_opp "seed-opp-8" "seed-startup-2" "AgroLink Rwanda" "Business Development Associate" "Business Development" \
   '[{"stringValue":"Sales"},{"stringValue":"Negotiation"},{"stringValue":"CRM"}]' \
-  true '\$110/mo' "Part-time" "4 months" "Kigali" 12 6 9 66
+  true '$110/mo' "Part-time" "4 months" "Kigali" 12 6 9 66
 
 seed_opp "seed-opp-9" "seed-startup-3" "MindBridge Health" "Content Creator" "Content Creation" \
   '[{"stringValue":"Copywriting"},{"stringValue":"Video Editing"},{"stringValue":"Storytelling"}]' \
@@ -174,7 +174,7 @@ seed_opp "seed-opp-9" "seed-startup-3" "MindBridge Health" "Content Creator" "Co
 
 seed_opp "seed-opp-10" "seed-startup-3" "MindBridge Health" "Product Management Intern" "Product Management" \
   '[{"stringValue":"Product Strategy"},{"stringValue":"User Research"},{"stringValue":"Agile"}]' \
-  true '\$140/mo' "Part-time" "4 months" "Hybrid" 21 3 11 77
+  true '$140/mo' "Part-time" "4 months" "Hybrid" 21 3 11 77
 
 # ── Applications ────────────────────────────────────────────
 seed_app() { # id oppId oppTitle startupId startupName applicantId applicantName applicantEmail status daysAgo extra_json
