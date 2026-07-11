@@ -28,6 +28,14 @@ what to show, and the one-sentence explanation to give while showing it.
 > the skill-match ranking fires), one shortlisted application with a status
 > note, and an unread notification. Register a *fresh* student on camera for
 > the auth demo; switch to the seeded accounts for the role demos.
+>
+> **If demoing on the emulator, say this once, when the data viewer first
+> appears on screen:** "Firestore database creation is billing-gated on our
+> student Google accounts — a constraint documented in my report — so I'm
+> running the Firebase Local Emulator Suite: the same Firebase Auth and
+> Firestore services locally, with the same SDKs and my production security
+> rules. Everything you see syncing here works identically against a
+> production project by flipping one flag."
 
 ---
 
