@@ -39,6 +39,20 @@ the identical UI, routing, and state layer.
 > and `adb reverse tcp:8080 tcp:8080` so the phone's localhost reaches the
 > host machine.
 
+### Demo accounts
+
+With the emulators running, `bash tool/seed_emulator.sh` seeds a demo world
+(verified startup, 3 opportunities, an existing shortlisted application,
+notifications) and these accounts:
+
+| Role | Email | Password |
+|---|---|---|
+| Student | `student@alustudent.com` | `Student123` |
+| Startup | `founder@alustudent.com` | `Founder123` |
+| Admin | `admin@alueducation.com` | `Admin1234` |
+
+The script is idempotent — re-run it any time the emulator restarts.
+
 ## Architecture
 
 Feature-first Clean Architecture with Cubit (bloc) state management:
