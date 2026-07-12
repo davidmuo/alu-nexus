@@ -4,193 +4,436 @@
 <meta charset="UTF-8">
 <title>ALU Nexus — Technical Report</title>
 <style>
-  @page { size: A4; margin: 25mm 22mm; }
+  @page { size: A4; margin: 24mm 21mm; }
   * { box-sizing: border-box; }
   body {
     font-family: Georgia, 'Times New Roman', serif;
-    color: #111827; font-size: 11pt; line-height: 1.55;
+    color: #111827; font-size: 10.8pt; line-height: 1.55;
     max-width: 175mm; margin: 0 auto; padding: 24px;
   }
-  h1 { font-size: 20pt; margin: 0 0 4px; }
-  h2 { font-size: 13.5pt; margin: 28px 0 10px; border-bottom: 1.5px solid #111827; padding-bottom: 4px; }
-  h3 { font-size: 11.5pt; margin: 18px 0 6px; }
+  h1 { font-size: 21pt; margin: 0 0 4px; }
+  h2 { font-size: 13.5pt; margin: 26px 0 10px; border-bottom: 1.5px solid #111827; padding-bottom: 4px; }
+  h3 { font-size: 11.5pt; margin: 16px 0 6px; }
   .subtitle { color: #374151; font-size: 11pt; margin-bottom: 2px; }
-  .meta { color: #6b7280; font-size: 10pt; margin-bottom: 24px; }
-  code, pre { font-family: Consolas, 'Courier New', monospace; font-size: 9.5pt; }
+  .meta { color: #6b7280; font-size: 10pt; margin-bottom: 18px; }
+  .abstract { border-left: 3px solid #111827; padding: 4px 14px; margin: 14px 0 6px; font-size: 10.2pt; color: #374151; }
+  code, pre { font-family: Consolas, 'Courier New', monospace; font-size: 9.3pt; }
   code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }
   pre { background: #f9fafb; border: 1px solid #e5e7eb; padding: 12px; overflow-x: auto; border-radius: 4px; }
-  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; }
-  th, td { border: 1px solid #d1d5db; padding: 6px 9px; text-align: left; vertical-align: top; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 9.6pt; }
+  th, td { border: 1px solid #d1d5db; padding: 5px 8px; text-align: left; vertical-align: top; }
   th { background: #f3f4f6; }
-  .diagram { margin: 16px 0; text-align: center; }
-  .box { display: inline-block; border: 1.5px solid #111827; border-radius: 6px; padding: 8px 16px; margin: 4px; font-family: Consolas, monospace; font-size: 9.5pt; background: #fff; }
-  .box.store { border-style: dashed; }
-  .arrow { display: inline-block; margin: 0 6px; font-size: 13pt; vertical-align: middle; }
-  .layer { border: 1px solid #9ca3af; border-radius: 8px; padding: 10px; margin: 8px 0; }
-  .layer-label { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; text-align: left; margin-bottom: 6px; }
+  .diagram { margin: 14px 0; text-align: center; page-break-inside: avoid; }
+  .box { display: inline-block; border: 1.5px solid #111827; border-radius: 6px; padding: 7px 14px; margin: 3px; font-family: Consolas, monospace; font-size: 9pt; background: #fff; }
+  .box.dashed { border-style: dashed; }
+  .box.dark { background: #111827; color: #fff; }
+  .arrow { display: inline-block; margin: 0 5px; font-size: 12pt; vertical-align: middle; }
+  .layer { border: 1px solid #9ca3af; border-radius: 8px; padding: 9px; margin: 7px 0; }
+  .layer-label { font-size: 8.3pt; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; text-align: left; margin-bottom: 5px; }
+  .caption { font-size: 9pt; color: #6b7280; margin-top: 6px; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px; }
+  figure { margin: 14px 0; text-align: center; page-break-inside: avoid; }
+  figure img { max-width: 100%; border: 1px solid #d1d5db; border-radius: 6px; }
+  figure.phone img { max-width: 62mm; }
+  .fig-row { display: flex; gap: 10px; justify-content: center; align-items: flex-start; }
+  .fig-row figure { flex: 1; margin: 8px 0; }
   .shot {
-    border: 1.5px dashed #9ca3af; border-radius: 8px; padding: 34px 12px;
+    border: 1.5px dashed #9ca3af; border-radius: 8px; padding: 30px 12px;
     text-align: center; color: #6b7280; font-size: 9.5pt; margin: 10px 0;
     page-break-inside: avoid;
   }
-  .shot-row { display: flex; gap: 10px; }
-  .shot-row .shot { flex: 1; }
-  .refs p { margin: 6px 0; padding-left: 2.2em; text-indent: -2.2em; font-size: 10pt; }
+  .refs p { margin: 6px 0; padding-left: 2.2em; text-indent: -2.2em; font-size: 9.8pt; }
   .pb { page-break-before: always; }
   li { margin: 3px 0; }
+  .palette { display: inline-block; width: 11px; height: 11px; border-radius: 3px; border: 1px solid #d1d5db; vertical-align: -1px; margin-right: 3px; }
   @media print { body { padding: 0; } }
 </style>
 </head>
 <body>
 
 <h1>ALU Nexus — Technical Report</h1>
-<p class="subtitle">A Flutter + Firebase platform connecting ALU students with student-led startups</p>
-<p class="meta">David Muotoh-Francis · African Leadership University · Mobile Application Development — Final Project</p>
+<p class="subtitle">A Flutter + Firebase marketplace connecting ALU students with student-led startups</p>
+<p class="meta">David Muotoh-Francis · African Leadership University · Mobile Application Development — Final Project<br>
+Repository: github.com/davidmuo/alu-nexus</p>
 
-<h2>1. Problem statement</h2>
-<p>ALU students need practical experience before graduating; ALU's student-led startups need affordable, motivated talent. Today that matching happens informally through WhatsApp groups and word of mouth — postings get lost, there is no application record, and students cannot verify that a "startup" is legitimate. ALU Nexus formalizes this marketplace: verified startups publish structured internship opportunities, students discover them through search and skill matching, and both sides track applications through a transparent pipeline.</p>
+<div class="abstract">
+<b>Abstract —</b> ALU Nexus formalizes the informal internship market inside the ALU ecosystem: verified
+student-led startups publish structured opportunities; students discover them through search, filters, and
+skill-based ranking; and both sides track applications through a transparent five-stage pipeline. The system
+is built with Flutter and Firebase (Auth + Cloud Firestore) on a feature-first Clean Architecture with Cubit
+state management. This report explains the architecture and the reasoning behind it, the backend schema and
+security model, the UI/UX design system, real-time state propagation, scalability, testing, and — in detail —
+the engineering challenges encountered (from an organization-level billing policy to a five-layer
+physical-device networking failure) and how each was diagnosed and resolved.
+</div>
+
+<h2>1. Problem statement &amp; product reasoning</h2>
+<p>ALU students need practical experience before graduation; ALU's student-led startups need affordable,
+motivated talent. Today this matching happens informally — WhatsApp groups, word of mouth, hallway
+conversations. Postings get lost, applications go unanswered with no record, and students have no way to
+verify that a "startup" recruiting them is legitimate. The consequences are asymmetric: a student who sends
+work samples to a fake venture loses more than the venture does.</p>
+<p>ALU Nexus is designed around three product decisions that address the ALU context specifically, not a
+generic job board:</p>
+<ol>
+  <li><b>Verification as a gate, not a badge.</b> A startup cannot publish anything until an ALU admin
+  approves its registration. The opportunity feed query filters on <code>startupVerified == true</code>
+  server-side, so unverified content is excluded at the data layer — it cannot reach students even by bug.</li>
+  <li><b>Skill matching that consumes onboarding data.</b> Skills selected during student onboarding
+  actively rank the feed: the opportunity with the highest overlap is featured with a
+  "Matches <i>N</i> of your skills" tag. Onboarding data works for the student rather than sitting in a
+  profile.</li>
+  <li><b>A transparent pipeline.</b> Informal internship applications die in silence. Every application in
+  ALU Nexus has a visible status (Applied → Reviewing → Shortlisted → Interviewing → Accepted/Rejected),
+  optional notes from the startup, an interview date, and a withdraw option — accountability in both
+  directions.</li>
+</ol>
 
 <h2>2. System architecture</h2>
 <div class="diagram">
   <div class="layer">
-    <div class="layer-label">Flutter client — presentation</div>
-    <span class="box">Screens (BlocBuilder)</span><span class="arrow">⇄</span><span class="box">Cubits ×5 (sealed states)</span>
+    <div class="layer-label">Presentation — Flutter</div>
+    <span class="box">Screens (BlocBuilder / BlocListener)</span><span class="arrow">⇄</span><span class="box">Cubits ×5 — sealed states</span><span class="arrow">⇄</span><span class="box">GoRouter (auth-guarded)</span>
   </div>
   <div class="layer">
-    <div class="layer-label">Data layer</div>
-    <span class="box">Repositories (all I/O)</span><span class="arrow">⇄</span><span class="box store">Demo repositories (subclass, in-memory)</span>
+    <div class="layer-label">Domain</div>
+    <span class="box">Entities: AppUser · Startup · Opportunity · Application · Notification</span>
   </div>
   <div class="layer">
-    <div class="layer-label">Firebase backend</div>
-    <span class="box">Firebase Auth</span>
-    <span class="box">Cloud Firestore (snapshots)</span>
-    <span class="box">Firebase Storage</span>
+    <div class="layer-label">Data</div>
+    <span class="box">Repositories (all I/O)</span><span class="arrow">⇄</span><span class="box dashed">Demo repositories (subclass, in-memory)</span>
   </div>
-  <p style="font-size:9pt;color:#6b7280;">Fig. 1 — Layered architecture. Writes flow down; Firestore snapshot streams flow up into Cubit state.</p>
+  <div class="layer">
+    <div class="layer-label">Backend — Firebase</div>
+    <span class="box dark">Firebase Auth</span>
+    <span class="box dark">Cloud Firestore (snapshot streams)</span>
+    <span class="box dark">Local Emulator Suite (dev)</span>
+  </div>
+  <p class="caption">Fig. 1 — Layered architecture. Writes flow downward through repositories; Firestore
+  snapshot streams flow upward into Cubit state. The dashed demo repositories substitute the data layer
+  without touching any other layer.</p>
 </div>
 
-<p>Three user roles share one codebase:</p>
+<h3>2.1 Feature-first Clean Architecture</h3>
+<p>Each feature (auth, onboarding, opportunities, applications, startups, notifications, admin) owns three
+layers under its own folder: <b>domain</b> (plain entities, zero Firebase imports [1]), <b>data</b> (models
+extending the entities with Firestore serialization, plus repositories that own every Auth/Firestore call),
+and <b>presentation</b> (Cubits and screens). Screens never construct queries or touch Firebase directly.</p>
+<p>The decisive evidence that these seams are real is the app's <b>three run modes</b>, switched by two
+compile-time flags in <code>main.dart</code>:</p>
 <table>
-  <tr><th>Role</th><th>Entry point</th><th>Capabilities</th></tr>
-  <tr><td>Student</td><td><code>StudentHomeScreen</code></td><td>discover, bookmark, apply, track applications</td></tr>
-  <tr><td>Startup</td><td><code>StartupHomeScreen</code></td><td>register startup, post opportunities, manage applicants</td></tr>
-  <tr><td>Admin</td><td><code>AdminDashboardScreen</code></td><td>approve/reject startup verification requests</td></tr>
+  <tr><th>Mode</th><th>Flags</th><th>Backend</th></tr>
+  <tr><td>Demo</td><td><code>kDemoMode = true</code></td><td>In-memory subclass repositories; no Firebase initialization at all</td></tr>
+  <tr><td>Emulator</td><td><code>kDemoMode = false, kUseEmulators = true</code></td><td>Real Firebase SDKs against the Local Emulator Suite (Auth :9099, Firestore :8080)</td></tr>
+  <tr><td>Production</td><td><code>kDemoMode = false, kUseEmulators = false</code></td><td>Live Firebase project via <code>flutterfire configure</code></td></tr>
 </table>
+<p>All three modes run the identical UI, routing, and state layer. Demo repositories <i>subclass</i> the
+production repositories and override only their I/O methods — possible because repositories expose Firebase
+through lazy getters (<code>FirebaseAuth get _auth =&gt; FirebaseAuth.instance;</code>) rather than
+constructor-time captures (§11, Challenge 1).</p>
 
-<h2>3. Architecture decisions</h2>
-<h3>3.1 Feature-first Clean Architecture</h3>
-<p>Each feature (auth, opportunities, applications, startups, notifications, admin) owns three layers: <b>domain</b> — plain entities with no Firebase imports, keeping business objects testable and framework-independent [1]; <b>data</b> — models extending the entities with Firestore (de)serialization, plus repositories owning every Firestore/Auth call; <b>presentation</b> — Cubits and screens. Screens never touch Firebase directly.</p>
-<p>This isolation enables the app's <b>demo mode</b>: demo repositories subclass the production repositories and override their I/O methods with in-memory data, so the entire UI, routing, and state layer runs unchanged with or without a backend — concrete evidence that the layers are genuinely decoupled.</p>
+<h3>2.2 Real-time propagation</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box">User action</span><span class="arrow">→</span>
+    <span class="box">Cubit method</span><span class="arrow">→</span>
+    <span class="box">Repository write</span><span class="arrow">→</span>
+    <span class="box dark">Firestore commit</span><span class="arrow">→</span>
+    <span class="box dark">snapshots() event</span><span class="arrow">→</span>
+    <span class="box">Cubit emit(state)</span><span class="arrow">→</span>
+    <span class="box">BlocBuilder rebuild</span>
+  </div>
+  <p class="caption">Fig. 2 — The unidirectional real-time loop. The UI reacts to the backend echoing the
+  write back through the snapshot stream, never to the local call — so every open screen (and the Firebase
+  console) converges on the same state without polling or manual refresh.</p>
+</div>
+<p>Every list screen subscribes to a Firestore <code>snapshots()</code> stream inside its Cubit. When a
+startup advances an application's status, the student's tracker pipeline, the startup's applicant list, the
+profile statistics row, and the backend console all update from the same commit. Cubits own their
+<code>StreamSubscription</code>s and cancel them in <code>close()</code>; changing a filter cancels the old
+subscription and opens a new server-side-filtered query.</p>
 
-<h3>3.2 State management: Cubit (bloc 9.x)</h3>
-<p>Cubit was chosen over full BLoC events, Provider, and Riverpod. Versus full BLoC: the app's interactions are direct method calls (<code>search()</code>, <code>submitApplication()</code>); event classes would add ceremony without needed auditability [2]. Versus Provider: Cubit gives an explicit sealed state machine (<code>Initial → Loading → Loaded | Error</code>) rather than ad-hoc <code>notifyListeners</code>, making loading/error handling exhaustive at the UI layer. Versus Riverpod: a one-person team favors bloc's smaller conceptual surface and first-class Flutter integration.</p>
+<h3>2.3 Navigation &amp; route protection</h3>
+<p><code>GoRouter</code> is created once at startup with a <code>refreshListenable</code> bound to
+<code>AuthCubit</code>'s stream. A single declarative <code>redirect</code> enforces the whole access
+policy: unauthenticated → <code>/login</code>; authenticated but not onboarded → the role-specific
+onboarding flow; onboarded → the role-specific home (<code>student / startup / admin</code> shells). Because
+the guard runs on every navigation, no deep link can reach a protected screen — protection is a property of
+the router, not a per-screen check. (An earlier version recreated the router on each auth state change,
+which reset navigation mid-login; §11, Challenge 6.)</p>
+
+<h2 class="pb">3. State management: justification</h2>
+<p>The brief allows BLoC, Riverpod, Provider, Cubit, or another justified architecture. Cubit (from the
+bloc package [2]) was selected deliberately:</p>
 <table>
-  <tr><th>Cubit</th><th>State owned</th><th>Backend link</th></tr>
+  <tr><th>Option</th><th>Assessment for this app</th></tr>
+  <tr><td><b>Cubit (chosen)</b></td><td>Direct methods (<code>search()</code>, <code>submitApplication()</code>) map 1:1 to user intents; sealed state classes make loading/error handling exhaustive; first-class Flutter bindings (<code>BlocBuilder</code>/<code>BlocListener</code>).</td></tr>
+  <tr><td>Full BLoC (events)</td><td>Event objects add auditability useful for event-sourced or highly concurrent flows — ceremony without benefit at this interaction complexity.</td></tr>
+  <tr><td>Provider</td><td><code>ChangeNotifier</code> offers no state-machine shape; loading/error handling becomes ad-hoc flags. Used deliberately for one thing (bookmarks, below).</td></tr>
+  <tr><td>Riverpod</td><td>Powerful, but a larger conceptual surface for a single-developer codebase; bloc's explicit Cubit-per-feature convention reads better for evaluators too.</td></tr>
+</table>
+<table>
+  <tr><th>Cubit</th><th>Owns</th><th>Backend link</th></tr>
   <tr><td><code>AuthCubit</code></td><td>session, onboarding completion</td><td><code>authStateChanges</code> stream</td></tr>
-  <tr><td><code>OpportunityCubit</code></td><td>feed + active filters</td><td>Firestore <code>snapshots()</code></td></tr>
-  <tr><td><code>ApplicationCubit</code></td><td>application lists (both roles)</td><td>Firestore <code>snapshots()</code></td></tr>
-  <tr><td><code>StartupCubit</code></td><td>directory, detail, verification</td><td>Firestore <code>snapshots()</code></td></tr>
-  <tr><td><code>NotificationCubit</code></td><td>notifications + unread count</td><td>Firestore <code>snapshots()</code></td></tr>
+  <tr><td><code>OpportunityCubit</code></td><td>feed + active filters (search/type/commitment/paid)</td><td>Firestore <code>snapshots()</code></td></tr>
+  <tr><td><code>ApplicationCubit</code></td><td>application lists for both roles; submit/update/withdraw</td><td>Firestore <code>snapshots()</code></td></tr>
+  <tr><td><code>StartupCubit</code></td><td>directory, detail, verification actions</td><td>Firestore <code>snapshots()</code></td></tr>
+  <tr><td><code>NotificationCubit</code></td><td>notification list + unread count</td><td>Firestore <code>snapshots()</code></td></tr>
 </table>
-<p>One deliberate exception: bookmarks use a lightweight <code>ChangeNotifier</code> singleton persisted to <code>SharedPreferences</code> — device-local personalization does not warrant a Firestore round-trip.</p>
+<p><b>A deliberate exception:</b> bookmarks use a <code>ChangeNotifier</code> singleton
+(<code>BookmarkStore</code>) persisted to <code>SharedPreferences</code>. Bookmarks are device-local
+personalization — a <code>Set&lt;String&gt;</code> of opportunity IDs. A Cubit + Firestore round-trip would
+add latency and cost for zero user value at this scale; choosing the lighter tool where appropriate is part
+of the architecture argument, not a departure from it.</p>
 
-<h3>3.3 Real-time propagation</h3>
-<p>Every list screen subscribes to Firestore <code>snapshots()</code> streams inside its Cubit. A state-changing write (e.g., a startup shortlists an applicant) triggers: Firestore commit → snapshot event → Cubit <code>emit</code> → <code>BlocBuilder</code> rebuild. No polling, no manual refresh; the Firebase Console reflects the same event simultaneously.</p>
+<h2>4. Firebase backend structure</h2>
+<h3>4.1 Schema</h3>
+<table>
+  <tr><th>Collection</th><th>Key fields</th><th>Notes</th></tr>
+  <tr><td><code>users/{uid}</code></td><td>email, displayName, role (<code>student|startup|admin</code>), skills[], isOnboardingComplete, createdAt</td><td>Document ID = Auth UID. <code>skills[]</code> drives feed ranking.</td></tr>
+  <tr><td><code>startups/{id}</code></td><td>ownerId, name, tagline, description, industry, verificationStatus (<code>pending|approved|rejected</code>), stage, focusAreas[], opportunitiesCount, followersCount</td><td>Verification status is the publishing gate.</td></tr>
+  <tr><td><code>opportunities/{id}</code></td><td>startupId, <b>startupName, startupVerified</b> (denormalized), title, type, skills[], commitment, duration, isPaid, compensation, location, deadline, isActive, applicationCount, viewCount, responsibilities[], requirements[], perks</td><td>Feed query: <code>isActive == true &amp;&amp; startupVerified == true</code>, ordered by <code>createdAt desc</code>.</td></tr>
+  <tr><td><code>applications/{id}</code></td><td>opportunityId, <b>opportunityTitle, startupId, startupName</b> (denorm.), applicantId, <b>applicantName, applicantEmail</b> (denorm.), coverLetter, status, statusNote, interviewDate, appliedAt</td><td>Soft-deletes: withdraw sets <code>status: withdrawn</code>, preserving the audit trail.</td></tr>
+  <tr><td><code>notifications/{id}</code></td><td>userId, title, body, type, referenceId, isRead, createdAt</td><td>Fan-out per recipient; unread count computed client-side from the stream.</td></tr>
+  <tr><td><code>admin_actions/{id}</code></td><td>adminId, targetId, action, note, timestamp</td><td>Immutable audit log of verification decisions.</td></tr>
+</table>
 
-<h3>3.4 Navigation</h3>
-<p><code>GoRouter</code> with a <code>refreshListenable</code> bound to <code>AuthCubit</code>'s stream. Centralized <code>redirect</code> enforces: unauthenticated → login; authenticated-but-not-onboarded → role-specific onboarding; onboarded → role-specific home. Deep links cannot bypass the guard because it is declarative, not per-screen.</p>
+<h3>4.2 Denormalization rationale</h3>
+<p>Opportunities embed <code>startupName/startupVerified</code>; applications embed display fields from both
+sides. Firestore charges and adds latency per document read, and offers no server-side joins [3] — so list
+screens must render from a single query. The trade-off is write-time duplication (a startup rename would fan
+out via a Cloud Function trigger), accepted because reads outnumber renames by orders of magnitude. This is
+a standard NoSQL read-optimization pattern applied consciously, not schema laziness.</p>
 
-<h2 class="pb">4. Firebase data model</h2>
-<pre>users/{uid}            role, skills[], isOnboardingComplete, ...
-startups/{id}          ownerId, verificationStatus, stage, focusAreas[], ...
-opportunities/{id}     startupId, startupVerified, skills[], deadline, isActive, ...
-applications/{id}      opportunityId, applicantId, status, statusNote, interviewDate, ...
-notifications/{id}     userId, type, referenceId, isRead, ...
-admin_actions/{id}     adminId, targetId, action, note, timestamp</pre>
-<p>Denormalization is intentional: <code>opportunities</code> embeds <code>startupName</code>/<code>startupVerified</code>, and <code>applications</code> embeds display fields from both sides. This trades write-time duplication for read-time efficiency — list screens render from a single query with no N+1 joins, which Firestore pricing and latency strongly favor [3]. Security rules (version-controlled in <code>firestore.rules</code>) enforce owner-only writes, admin gates, and applicant/startup-scoped application access; 13 composite indexes are declared in <code>firestore.indexes.json</code> and deployed with the app.</p>
+<h3>4.3 Security rules &amp; indexes as code</h3>
+<p>Access control is version-controlled (<code>firestore.rules</code>) and deployed with the app rather than
+clicked together in a console: users write only their own document; a startup document is mutable only by
+its owner or an admin; opportunities are creatable only by the owning startup's owner; an application is
+readable only by its applicant and the receiving startup's owner; <code>admin_actions</code> is admin-only.
+One deliberate carve-out allows any signed-in client to update <i>only</i> the
+<code>viewCount/applicationCount</code> counters, enforced with
+<code>request.resource.data.diff(resource.data).affectedKeys().hasOnly([...])</code>. The rules were verified
+behaviorally: an authenticated write to another user's document is rejected with
+<code>PERMISSION_DENIED</code> at the expected rule line. All 13 composite indexes required by the app's
+compound queries are declared in <code>firestore.indexes.json</code> and deploy in one command — eliminating
+an entire class of runtime "this query requires an index" failures.</p>
 
-<h2>5. Feature workflows</h2>
-<p><b>Startup verification (ALU-specific):</b> startup completes onboarding → <code>verificationStatus: pending</code> → admin approves/rejects with a note → decision written to the startup document <i>and</i> audit-logged to <code>admin_actions</code> → the feed query hard-filters <code>startupVerified == true</code>, so unverified content is excluded at the query level, not hidden client-side.</p>
-<p><b>Application pipeline:</b> duplicate submissions blocked by a pre-submission query; each status change (Reviewing → Shortlisted → Interviewing → Accepted/Rejected) optionally carries a note and interview date; students see a five-step progress visualization and can withdraw while active.</p>
-<p><b>Skill matching:</b> students select skills during onboarding (stored on <code>users/{uid}.skills</code>). The feed scores every active opportunity by case-insensitive overlap with those skills and features the best match ("Matches N of your skills").</p>
-
-<div class="shot-row">
-  <div class="shot">[ Screenshot — Onboarding: skill selection ]</div>
-  <div class="shot">[ Screenshot — Feed with skill-matched featured card ]</div>
+<h2 class="pb">5. Application workflows</h2>
+<h3>5.1 Startup verification (trust workflow)</h3>
+<div class="diagram">
+  <div class="flow">
+    <span class="box">Startup onboarding</span><span class="arrow">→</span>
+    <span class="box">status: pending</span><span class="arrow">→</span>
+    <span class="box dark">Admin review (+note)</span><span class="arrow">→</span>
+    <span class="box">approved / rejected</span><span class="arrow">→</span>
+    <span class="box">audit log (admin_actions)</span>
+  </div>
+  <p class="caption">Fig. 3 — Verification workflow. Only <code>approved</code> startups can publish, and
+  the feed filters verified content at the query level.</p>
 </div>
-<div class="shot-row">
+
+<h3>5.2 Application pipeline</h3>
+<p>Duplicate submissions are blocked by a pre-submission query on
+<code>(applicantId, opportunityId)</code>. Each status change optionally carries a note and interview date;
+the student sees a five-step progress visualization and may withdraw while the application is active.
+Status changes generate notifications, and the startup's applicant list, the student's tracker, and the
+profile statistics all converge through the snapshot loop of Fig. 2.</p>
+
+<h3>5.3 Skill matching</h3>
+<p>The feed computes a case-insensitive overlap score between the student's onboarding skills and each
+posting's required skills, ranks the list by score, and features the best match. The computation is
+O(n·m) client-side over the streamed page — appropriate at ALU's scale, with a documented server-side
+upgrade path (§10).</p>
+
+<figure class="phone">
+  <img src="img/01_feed_home.png" alt="Opportunity feed">
+  <p class="caption">Fig. 4 — Discovery feed: greeting header, search + filter, pill tabs (Discover / Saved /
+  categories), and color-blocked opportunity cards with skill-match tag, bookmark, and compensation.</p>
+</figure>
+
+<div class="fig-row">
+  <div class="shot">[ Screenshot — Onboarding: skill selection ]</div>
+  <div class="shot">[ Screenshot — Opportunity detail (dark) with Apply ]</div>
+</div>
+<div class="fig-row">
   <div class="shot">[ Screenshot — Application pipeline tracker ]</div>
   <div class="shot">[ Screenshot — Admin verification dashboard ]</div>
 </div>
-<div class="shot">[ Screenshot — App and Firebase Console side-by-side during a status update ]</div>
 
 <h2>6. UI/UX reasoning</h2>
+<p>The interface went through <b>three full design iterations</b> — a navy/gold corporate look, a flat
+light-blue system, and the final bold color-blocked system — because the first two read as templates. The
+final system commits to a strong, recognizable visual language:</p>
 <ul>
-  <li><b>One accent color</b> (royal blue #2563EB) on flat white surfaces; color is reserved for meaning (green = paid/approved, amber = pending, red = deadline). Gradients and decorative effects were removed in review — they added noise without information.</li>
-  <li><b>Progressive disclosure on the feed:</b> greeting → search + filter → category chips → one skill-matched featured card → compact tiles. The student's first question ("is there anything for me?") is answered before scrolling.</li>
-  <li><b>Pipeline visualization:</b> application status is a five-step progress bar, not a text label — the core anxiety this app addresses is not knowing where an application stands.</li>
-  <li><b>No dead ends:</b> every list has loading (shimmer), error (retry), and empty (guidance) states; dead menu items found in review were implemented (bookmarks) or removed.</li>
-  <li><b>Trust signals:</b> the verified badge appears wherever a startup is named; unverified startups cannot reach the feed at all.</li>
+  <li><b>Type:</b> Satoshi (grotesque sans, bundled locally with four weights) for UI; headings set in
+  Black (900) weight — the "Find Opportunities" masthead is typography doing the branding. The wordmark
+  "ALU-Nexus" is set in Sentient, a serif from the same foundry, giving the brand a distinct voice without
+  a logo mark.</li>
+  <li><b>Color:</b> a disciplined five-color palette —
+  <span class="palette" style="background:#5324FD"></span>electric purple <code>#5324FD</code>,
+  <span class="palette" style="background:#F5001E"></span>red <code>#F5001E</code>,
+  <span class="palette" style="background:#FCC636"></span>yellow <code>#FCC636</code>,
+  black and white. Opportunity cards rotate through the three brand colors; each card's color follows the
+  user into its detail screen as the identity block, creating continuity. Text auto-inverts (white on
+  purple/red, black on yellow) for contrast.</li>
+  <li><b>Dark detail screens:</b> opportunity details render on a black canvas with white content cards —
+  focus shifts from browsing to evaluating one thing.</li>
+  <li><b>Consistent metadata voice:</b> after user testing feedback, all label "pills" (skills, focus areas,
+  stage, application status) were flattened to plain desaturated-purple text
+  (<code>#7D6BC9</code>, dot-separated) — one quiet voice for metadata instead of competing colored chips.
+  Color is reserved for surfaces and semantic states.</li>
+  <li><b>No dead ends:</b> every list has a loading (shimmer), error (retry), and empty (guidance) state;
+  every menu item found to be non-functional in review was implemented (bookmarks) or removed.</li>
+  <li><b>Trust signals:</b> the verified badge accompanies a startup's name everywhere it appears;
+  unverified startups cannot reach the feed at all, so students never assess legitimacy themselves.</li>
+  <li><b>Pipeline visualization:</b> application status is a five-step progress bar rather than a text
+  label — the product's core promise (you always know where you stand) rendered literally.</li>
 </ul>
 
-<h2>7. Error, loading, and edge-case handling</h2>
+<h2 class="pb">7. Error, loading, and edge-case handling</h2>
 <ul>
-  <li>Every Cubit models <code>Loading</code>/<code>Error</code> states; screens render shimmer placeholders or retryable error panels.</li>
-  <li>Firebase Auth error codes mapped to human-readable messages (<code>email-already-in-use</code>, <code>wrong-password</code>, <code>too-many-requests</code>, …).</li>
-  <li>Form validation: ALU email domain, password strength, 100-character minimum cover letter, optional-but-validated URLs.</li>
-  <li>Duplicate applications rejected with explanation; expired opportunities disable Apply; near deadlines flagged "Closing soon"; explicit empty states throughout.</li>
+  <li>Every Cubit models <code>Loading</code>/<code>Error</code> states; screens render shimmer placeholders
+  or retryable error panels. Firebase Auth error codes map to human-readable messages
+  (<code>email-already-in-use</code>, <code>wrong-password</code>, <code>too-many-requests</code>, …).</li>
+  <li>Form validation: ALU email domain enforcement (<code>@alustudent.com</code> /
+  <code>@alueducation.com</code>), password policy (length + uppercase + digit), 100-character minimum
+  cover letter, optional-but-validated URLs.</li>
+  <li>Duplicate applications rejected with an explanatory message; expired opportunities disable Apply;
+  approaching deadlines flagged ("Closing soon"); withdraw requires confirmation; sessions persist across
+  restarts.</li>
 </ul>
 
-<h2 class="pb">8. Scalability considerations</h2>
-<ul>
-  <li><b>Query cost</b> — list queries are indexed, filtered server-side, and bounded. Client-side text search over the streamed page is appropriate now; the drop-in replacement at scale is a search service (Algolia/Typesense) fed by Firestore triggers [3].</li>
-  <li><b>Skill matching</b> — client-side scoring is O(n·m) per feed load. The repository already exposes <code>getRecommendedOpportunities()</code> using <code>arrayContainsAny</code>, so ranking can move server-side (Cloud Function + composite index) without touching the UI layer.</li>
-  <li><b>Notification fan-out</b> — a Cloud Functions trigger on application status change centralizes fan-out while client code stays unchanged.</li>
-  <li><b>Team scale</b> — feature-first foldering makes new features additive: new folder, new Cubit, new routes; no cross-feature edits.</li>
-</ul>
-
-<h2>9. Testing strategy</h2>
+<h2>8. Testing strategy</h2>
 <ol>
-  <li><b>Static analysis as a gate</b> — <code>flutter analyze</code> at 0 issues; all deprecations resolved to current Material 3 APIs rather than suppressed.</li>
-  <li><b>Unit tests for pure logic</b> — 16 tests cover the validator layer (ALU-domain rules, password policy, URL/length), the highest-risk pure logic in the app.</li>
-  <li><b>Demo mode as integration harness</b> — demo repositories subclass production ones, so demo runs exercise every Cubit transition, route guard, and screen against deterministic data. Full student/startup/admin journeys were walked on Chrome and a physical Android device (Samsung S22 Ultra).</li>
-  <li><b>Rule-level security</b> — Firestore rules are version-controlled and deployed with the app, making access control reviewable rather than console-configured.</li>
+  <li><b>Static analysis as a gate</b> — <code>flutter analyze</code> is held at <b>0 issues</b>; every
+  deprecation was migrated to current Material 3 APIs (<code>withValues</code>, <code>initialValue</code>,
+  <code>activeThumbColor</code>) rather than suppressed.</li>
+  <li><b>Unit tests for the riskiest pure logic</b> — 16 tests cover the validator layer (ALU-domain rules,
+  password policy, URL/length validation): a defect there silently admits non-ALU users or locks out valid
+  ones.</li>
+  <li><b>Behavioral verification of the full stack</b> — against the Emulator Suite, the exact request
+  sequence the app performs was exercised end-to-end: email/password signup → sign-in → authenticated
+  Firestore write to own profile (<i>accepted</i>) → write to another user's profile (<i>rejected</i>,
+  <code>PERMISSION_DENIED</code> at the expected rule line). This validates code <i>and</i> security rules
+  together.</li>
+  <li><b>Demo mode as an integration harness</b> — because demo repositories subclass production ones, demo
+  runs exercise every Cubit transition, route guard, and screen against deterministic data. Full
+  student/startup/admin journeys were walked on Chrome and a physical Samsung S22 Ultra.</li>
+  <li><b>Reproducible test fixtures</b> — an idempotent seed script (<code>tool/seed_emulator.sh</code>)
+  reconstructs the entire demo world (accounts for all three roles, 4 startups incl. one pending
+  verification, 10 opportunities, 6 applications across pipeline stages, notifications) in seconds.</li>
 </ol>
 
-<h2>10. Challenges encountered &amp; resolutions</h2>
+<figure>
+  <img src="img/05_emulator_auth.png" alt="Emulator Auth accounts">
+  <p class="caption">Fig. 5 — Firebase Authentication (Emulator Suite UI): the three role accounts
+  provisioned by the seed script, as created through the real Auth API.</p>
+</figure>
+<figure>
+  <img src="img/05_emulator_firestore.png" alt="Emulator Firestore data">
+  <p class="caption">Fig. 6 — Cloud Firestore data browser: the <code>applications</code> collection with a
+  document showing the denormalized fields (applicant + opportunity display data embedded) described in §4.2.</p>
+</figure>
+
+<h2 class="pb">9. Challenges encountered &amp; how they were overcome</h2>
+<p>These are documented in the order they occurred; each includes the diagnostic step that cracked it.</p>
 <table>
-  <tr><th>Challenge</th><th>Resolution</th></tr>
-  <tr><td><b>Firebase-coupled construction crashes.</b> Early repositories captured <code>FirebaseAuth.instance</code> in constructors, crashing at startup without Firebase configured.</td><td>Refactored to lazy getters (<code>FirebaseAuth get _auth =&gt; FirebaseAuth.instance</code>) — Firebase touched only on method invocation, which also enabled demo subclassing.</td></tr>
-  <tr><td><b>Demo data vs. type safety.</b> Screens resolve Cubits by concrete type, so standalone demo cubits broke every screen.</td><td>Demo cubits <i>subclass</i> the real ones, injecting overridden repositories through the existing constructor — zero screen changes.</td></tr>
-  <tr><td><b>Organization billing policy blocked Firestore.</b> The ALU-managed Google Cloud org requires billing before Firestore database creation.</td><td>Diagnosed via CLI (identical 403 across regions/editions ⇒ project-level policy); resolved by provisioning the Firebase project outside the org with owner access granted to the school account. Demo mode kept development unblocked meanwhile.</td></tr>
-  <tr><td><b>Compound query index requirements.</b> Firestore rejects multi-field filtered queries until composite indexes exist — a mid-demo failure mode.</td><td>All 13 composite indexes declared in <code>firestore.indexes.json</code>, deployed in one command instead of clicked reactively from error links.</td></tr>
-  <tr><td><b>Dart interpolation in currency text.</b> <code>'$200/month'</code> parses as interpolation — a subtle syntax error.</td><td>Raw strings (<code>r'$200/month'</code>) for all currency literals.</td></tr>
-  <tr><td><b>Invisible ink-splash assertions.</b> <code>ListTile</code> inside decorated <code>Container</code>s throws debug assertions (ripples paint on the nearest <code>Material</code>).</td><td>Replaced decorated containers with <code>Material(shape: …)</code> wrappers, unifying how every card is built.</td></tr>
+  <tr><th style="width:31%">Challenge</th><th>Diagnosis &amp; resolution</th></tr>
+  <tr>
+    <td><b>1. Firebase-coupled constructors crashed the app without a backend.</b> Early repositories captured <code>FirebaseAuth.instance</code> at construction, throwing before the first frame on any device without Firebase configured.</td>
+    <td>Refactored every repository to lazy getters (<code>FirebaseAuth get _auth =&gt; FirebaseAuth.instance;</code>) so Firebase is touched only when a method runs. Two lines per repository — and the enabling condition for the entire demo-mode architecture.</td>
+  </tr>
+  <tr>
+    <td><b>2. Demo data vs. type safety.</b> Screens resolve Cubits by concrete type (<code>context.read&lt;AuthCubit&gt;()</code>), so standalone demo cubits broke every screen.</td>
+    <td>Demo cubits <i>subclass</i> the real ones and inject overridden repositories through the normal constructor — zero screen changes, and the substitution doubles as proof the layers are decoupled.</td>
+  </tr>
+  <tr>
+    <td><b>3. Organization billing policy blocked Firestore provisioning.</b> Creating a Firestore database failed with <i>"This API method requires billing"</i> on the university-managed Google Cloud organization — and on a personal project, via console and CLI, across regions and editions.</td>
+    <td>Isolated the variable systematically (org vs. personal project, console vs. API, region, edition) to prove it was account-level enforcement, not configuration. Pivoted to the <b>Firebase Local Emulator Suite</b>: same SDKs, same security rules, live data viewer — with production switchable later by one flag. Development never stalled.</td>
+  </tr>
+  <tr>
+    <td><b>4. The physical-device networking gauntlet.</b> On a real phone (not an AVD), login hung forever, then failed generically. Five distinct layers were broken at once: (a) Android blocks cleartext HTTP by default — and Firestore does not fail on it, it <i>queues the write and retries silently forever</i>, presenting as an infinite spinner; (b) the Firebase Flutter plugins silently rewrite <code>localhost</code> to <code>10.0.2.2</code>, an alias that only exists inside Android emulators; (c) the dev machine's LAN IP then needed its own cleartext exemption; (d) the Java-based Firestore emulator bound to IPv6 only (<code>:::8080</code>) while the Node-based Auth emulator bound IPv4 — so half the backend was reachable; (e) a Windows Firewall <i>Block</i> rule for Android Studio's <code>java.exe</code> (created by a long-forgotten dismissed popup) overrode the port allow rule.</td>
+    <td>Worked the stack layer by layer with real evidence at each step: device logs (<code>adb logcat</code>) exposed (a) and (b) verbatim; a scoped <code>network_security_config.xml</code> (cleartext to loopback + dev-machine IP only) fixed (a)/(c); a <code>--dart-define=EMU_HOST</code> build flag routed around (b); <code>netstat</code> bindings exposed (d), fixed with <code>-Djava.net.preferIPv4Stack=true</code>; and raw TCP probes from the phone (<code>adb shell nc</code>) — port 9099 connecting while 8080 timed out with identical rules — isolated (e) to a program-level firewall block. Each fix was verified independently before moving to the next layer.</td>
+  </tr>
+  <tr>
+    <td><b>5. A silent data bug: invalid JSON escapes.</b> The seed script wrote compensation strings as <code>\$150/mo</code>; <code>\$</code> is an invalid JSON escape, so Firestore rejected <i>every paid opportunity</i> while unpaid ones succeeded — a partial, pattern-shaped data loss that looked like an app bug.</td>
+    <td>Counted documents via the REST API and noticed the survivors were exactly the unpaid postings; correlated with <code>INVALID_ARGUMENT: Payload isn't valid</code> in the emulator log. Fixed the escaping and re-verified by document count. Lesson folded into the script: responses are no longer assumed successful.</td>
+  </tr>
+  <tr>
+    <td><b>6. Router lifecycle reset navigation mid-login.</b> The GoRouter instance was rebuilt inside a <code>BlocBuilder</code> on every auth state change, resetting the navigation stack while a login was in flight.</td>
+    <td>Create the router <b>once</b> in <code>initState</code>; auth reactivity belongs to its <code>refreshListenable</code>, not to widget rebuilds. A one-line fix that encodes a real GoRouter lifecycle rule.</td>
+  </tr>
+  <tr>
+    <td><b>7. Framework subtleties.</b> Dart parsed <code>'$150/month'</code> as string interpolation; <code>ListTile</code> inside decorated containers threw ink-splash assertions.</td>
+    <td>Raw strings (<code>r'$150/month'</code>) for currency literals; <code>Material(shape: …)</code> wrappers instead of decorated <code>Container</code>s — which also unified how every card in the app is built.</td>
+  </tr>
 </table>
+
+<h2>10. Scalability considerations</h2>
+<ul>
+  <li><b>Query cost &amp; latency</b> — all list queries are server-side filtered, indexed, and bounded
+  (<code>limit(50)</code> on notifications). Client-side text search over the streamed page is appropriate
+  now; the drop-in replacement at scale is a search service (Algolia/Typesense) fed by Firestore triggers [3].</li>
+  <li><b>Skill matching</b> — the O(n·m) client-side ranking moves server-side without UI changes: the
+  repository already exposes <code>getRecommendedOpportunities()</code> built on Firestore's
+  <code>arrayContainsAny</code>, ready to be fronted by a Cloud Function ranking endpoint.</li>
+  <li><b>Notification fan-out</b> — status-change notifications should migrate to a Cloud Functions trigger,
+  centralizing fan-out while client code stays unchanged; FCM push delivery attaches at the same point.</li>
+  <li><b>Denormalization maintenance</b> — a rename fan-out trigger on <code>startups</code> keeps embedded
+  display fields consistent as write volume grows.</li>
+  <li><b>Team scale</b> — feature-first foldering makes new features additive (new folder, new Cubit, new
+  routes); no cross-feature edits, which keeps merge conflicts local as contributors join.</li>
+</ul>
 
 <h2>11. Lessons learned</h2>
 <ul>
-  <li><b>Depend on interfaces, defer side effects.</b> The lazy-getter refactor was two lines per repository but unlocked the entire demo-mode architecture.</li>
-  <li><b>Infrastructure belongs in version control.</b> Rules and indexes as files turned console clicking into reviewable, redeployable artifacts.</li>
-  <li><b>Cloud constraints are design inputs.</b> An org billing policy — not code — was the biggest blocker; building the app to run without its backend made it a footnote instead of a stop-the-world problem.</li>
-  <li><b>Restraint is a design skill.</b> The strongest UI iteration removed things: gradients, emojis, dead menu items.</li>
-  <li><b>State machines surface edge cases.</b> Modeling every list as <code>Initial | Loading | Loaded | Error</code> forced real loading/error/empty UI everywhere.</li>
+  <li><b>Depend on interfaces; defer side effects.</b> Two lines per repository (lazy getters) unlocked an
+  entire testing architecture. Constructors that perform I/O couple an app to its backend's availability.</li>
+  <li><b>Silence is the worst failure mode.</b> The three hardest bugs — Firestore's infinite offline
+  retries, the JSON-escape rejections, and the firewall block — all failed <i>silently</i>. Instrumentation
+  (device logs, REST document counts, TCP probes) beats speculation every time.</li>
+  <li><b>Debug distributed systems layer by layer.</b> The device-networking gauntlet was five independent
+  faults stacked; fixing them required verifying each layer in isolation instead of changing several
+  variables at once.</li>
+  <li><b>Infrastructure belongs in version control.</b> Rules, indexes, and seed data as files turned
+  console clicking into reviewable, redeployable artifacts — and made every environment reproducible.</li>
+  <li><b>Cloud constraints are design inputs.</b> An organization billing policy — not code — was the
+  project's biggest external blocker. Architecting the app to run against three interchangeable backends
+  turned it into a footnote.</li>
+  <li><b>Restraint is a design skill.</b> The strongest UI iteration removed things: gradients, decorative
+  chips, dead menu items. A disciplined palette with one metadata voice reads more professional than any
+  ornament.</li>
 </ul>
 
-<h2>12. Limitations &amp; future work</h2>
+<h2>12. Limitations &amp; future improvements</h2>
 <ul>
-  <li>Push notifications (FCM) are scaffolded but not delivered end-to-end.</li>
-  <li>Resume/file upload to Firebase Storage is stubbed at the UI level.</li>
-  <li>In-app messaging between startups and shortlisted candidates is the next highest-value feature.</li>
+  <li><b>Production Firebase project</b> — blocked by the billing constraint (§9.3); the switch is a single
+  flag once an unrestricted billing account is available.</li>
+  <li><b>Push notifications</b> — FCM is scaffolded but not delivered end-to-end; the Cloud Functions
+  fan-out point (§10) is where it attaches.</li>
+  <li><b>File uploads</b> — resume/portfolio upload to Firebase Storage is stubbed at the UI level.</li>
+  <li><b>Messaging</b> — in-app chat between startups and shortlisted candidates is the highest-value next
+  feature; the notification and security-rule patterns already established extend to it naturally.</li>
+  <li><b>Analytics dashboard</b> — startups would benefit from posting-performance views (views → applies
+  conversion), computable from data already collected.</li>
 </ul>
 
 <h2>References</h2>
 <div class="refs">
-<p>[1] R. C. Martin, <i>Clean Architecture: A Craftsman's Guide to Software Structure and Design</i>. Boston, MA, USA: Prentice Hall, 2017.</p>
-<p>[2] F. Angelov, "bloc state management library," bloclibrary.dev, 2024. [Online]. Available: https://bloclibrary.dev</p>
-<p>[3] Google, "Cloud Firestore documentation — Data model, queries, and pricing," firebase.google.com, 2025. [Online]. Available: https://firebase.google.com/docs/firestore</p>
-<p>[4] Google, "Firebase Authentication documentation," firebase.google.com, 2025. [Online]. Available: https://firebase.google.com/docs/auth</p>
-<p>[5] Flutter team, "Flutter documentation," docs.flutter.dev, 2025. [Online]. Available: https://docs.flutter.dev</p>
+<p>[1] R. C. Martin, <i>Clean Architecture: A Craftsman's Guide to Software Structure and Design</i>.
+Boston, MA, USA: Prentice Hall, 2017.</p>
+<p>[2] F. Angelov, "bloc state management library," bloclibrary.dev, 2024. [Online]. Available:
+https://bloclibrary.dev</p>
+<p>[3] Google, "Cloud Firestore documentation — Data model, queries, and pricing," firebase.google.com,
+2025. [Online]. Available: https://firebase.google.com/docs/firestore</p>
+<p>[4] Google, "Firebase Authentication documentation," firebase.google.com, 2025. [Online]. Available:
+https://firebase.google.com/docs/auth</p>
+<p>[5] Google, "Firebase Local Emulator Suite," firebase.google.com, 2025. [Online]. Available:
+https://firebase.google.com/docs/emulator-suite</p>
+<p>[6] Flutter team, "Flutter documentation," docs.flutter.dev, 2025. [Online]. Available:
+https://docs.flutter.dev</p>
+<p>[7] Android Developers, "Network security configuration," developer.android.com, 2025. [Online].
+Available: https://developer.android.com/privacy-and-security/security-config</p>
 </div>
 
 </body>
