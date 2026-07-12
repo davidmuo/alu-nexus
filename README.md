@@ -75,6 +75,8 @@ lib/
 ```
 
 Full rationale, diagrams, and scalability discussion: [REPORT.md](REPORT.md).
+Demo walkthrough: [DEMO_SCRIPT.md](DEMO_SCRIPT.md) &middot; code study guide:
+[CODE_TOUR.md](CODE_TOUR.md).
 
 ## Quality
 
