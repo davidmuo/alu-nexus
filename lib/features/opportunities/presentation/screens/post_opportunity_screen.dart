@@ -159,6 +159,7 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _type,
+                isExpanded: true,
                 decoration: const InputDecoration(labelText: 'Role Category'),
                 items: AppConstants.opportunityTypes
                     .map((t) => DropdownMenuItem(value: t, child: Text(t)))

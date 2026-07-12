@@ -220,6 +220,7 @@ class _Page1 extends StatelessWidget {
           const SizedBox(height: 28),
           DropdownButtonFormField<String>(
             initialValue: program,
+            isExpanded: true,
             decoration: const InputDecoration(
               labelText: 'Program',
               prefixIcon: Icon(Icons.school_outlined),

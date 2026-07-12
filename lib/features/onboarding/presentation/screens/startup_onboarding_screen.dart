@@ -253,6 +253,7 @@ class _StartupPage1 extends StatelessWidget {
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             initialValue: industry,
+            isExpanded: true,
             decoration: const InputDecoration(
               labelText: 'Industry',
               prefixIcon: Icon(Icons.category_outlined),
