@@ -27,7 +27,7 @@ const bool kDemoMode = false;
 
 /// When running in live mode, connect to the local Firebase Emulator Suite
 /// (firebase emulators:start) instead of production Firebase.
-const bool kUseEmulators = true;
+const bool kUseEmulators = false;
 
 /// Emulator host. Defaults to localhost (web/desktop). For a physical
 /// Android device the Firebase plugins rewrite "localhost" to 10.0.2.2

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "790288149422",
-    "project_id": "alunexus-b85a1",
-    "storage_bucket": "alunexus-b85a1.firebasestorage.app"
+    "project_number": "628786263994",
+    "project_id": "alunexus-5416d",
+    "storage_bucket": "alunexus-5416d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:790288149422:android:69a2059193c957faf6763f",
+        "mobilesdk_app_id": "1:628786263994:android:109b178ab9ceb69d4bcf83",
         "android_client_info": {
           "package_name": "com.alu.alu_nexus"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBFkgO5Pu4k16t4vQaXAMkHQvnOSufKVqg"
+          "current_key": "AIzaSyDlux8fCyH_d-M0E94odgkLCn3EjlTKEo4"
         }
       ],
       "services": {

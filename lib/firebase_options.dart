@@ -36,11 +36,11 @@ class DefaultFirebaseOptions {
   //  10. Run: flutterfire configure
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBFkgO5Pu4k16t4vQaXAMkHQvnOSufKVqg',
-    appId: '1:790288149422:android:69a2059193c957faf6763f',
-    messagingSenderId: '790288149422',
-    projectId: 'alunexus-b85a1',
-    storageBucket: 'alunexus-b85a1.firebasestorage.app',
+    apiKey: 'AIzaSyDlux8fCyH_d-M0E94odgkLCn3EjlTKEo4',
+    appId: '1:628786263994:android:109b178ab9ceb69d4bcf83',
+    messagingSenderId: '628786263994',
+    projectId: 'alunexus-5416d',
+    storageBucket: 'alunexus-5416d.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'REPLACE_WITH_IOS_API_KEY',
@@ -53,11 +53,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDNDgQM-8uEr2oQDs5cRkNLMCIeqjQYIyw',
-    appId: '1:790288149422:web:c1d39603f58e931bf6763f',
-    messagingSenderId: '790288149422',
-    projectId: 'alunexus-b85a1',
-    authDomain: 'alunexus-b85a1.firebaseapp.com',
-    storageBucket: 'alunexus-b85a1.firebasestorage.app',
+    apiKey: 'AIzaSyBF1UAMfkh_WZUUTiSE7CnBRIHrTdoM63U',
+    appId: '1:628786263994:web:2564c5cb127b06544bcf83',
+    messagingSenderId: '628786263994',
+    projectId: 'alunexus-5416d',
+    authDomain: 'alunexus-5416d.firebaseapp.com',
+    storageBucket: 'alunexus-5416d.firebasestorage.app',
   );
 }

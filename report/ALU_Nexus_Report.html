@@ -324,11 +324,13 @@ final system commits to a strong, recognizable visual language:</p>
   <li><b>Unit tests for the riskiest pure logic.</b> 16 tests cover the validator layer (ALU-domain rules,
   password policy, URL and length validation): a defect there silently admits non-ALU users or locks out
   valid ones.</li>
-  <li><b>Behavioral verification of the full stack.</b> Against the Emulator Suite, the exact request
-  sequence the app performs was exercised end-to-end: email/password signup, then sign-in, then an
-  authenticated Firestore write to the user's own profile (<i>accepted</i>), then a write to another user's
-  profile (<i>rejected</i> with <code>PERMISSION_DENIED</code> at the expected rule line). This validates
-  code <i>and</i> security rules together.</li>
+  <li><b>Behavioral verification of the full stack.</b> The exact request sequence the app performs was
+  exercised end-to-end: email/password signup, then sign-in, then an authenticated Firestore write to the
+  user's own profile (<i>accepted</i>), then a write to another user's profile (<i>rejected</i> with
+  <code>PERMISSION_DENIED</code> at the expected rule line). This validates code <i>and</i> security rules
+  together. The production database was then seeded exclusively through those deployed rules using
+  authenticated requests (<code>tool/seed_production.sh</code>): nine real accounts creating only the
+  documents the rules permit them to create.</li>
   <li><b>Demo mode as an integration harness.</b> Because demo repositories subclass production ones, demo
   runs exercise every Cubit transition, route guard, and screen against deterministic data. Full
   student, startup, and admin journeys were walked on Chrome and a physical Samsung S22 Ultra.</li>
@@ -363,7 +365,7 @@ final system commits to a strong, recognizable visual language:</p>
   </tr>
   <tr>
     <td><b>3. Organization billing policy blocked Firestore provisioning.</b> Creating a Firestore database failed with <i>"This API method requires billing"</i> on the university-managed Google Cloud organization, and on a personal project, via console and CLI, across regions and editions.</td>
-    <td>Isolated the variable systematically (org vs. personal project, console vs. API, region, edition) to prove it was account-level enforcement, not configuration. Pivoted to the <b>Firebase Local Emulator Suite</b>: same SDKs, same security rules, live data viewer, with production switchable later by one flag. Development never stalled.</td>
+    <td>Isolated the variable systematically (org vs. personal project, console vs. API, region, edition) to prove it was account-level enforcement, not configuration. Pivoted to the <b>Firebase Local Emulator Suite</b> (same SDKs, same security rules, live data viewer) so development never stalled, then provisioned the database on a personal-account project once console access allowed it. The final app runs against <b>live production Firebase</b>; the cutover was, as designed, a one-flag change.</td>
   </tr>
   <tr>
     <td><b>4. The physical-device networking gauntlet.</b> On a real phone (not an AVD), login hung forever, then failed generically. Five distinct layers were broken at once: (a) Android blocks cleartext HTTP by default, and Firestore does not fail on it; it <i>queues the write and retries silently forever</i>, presenting as an infinite spinner; (b) the Firebase Flutter plugins silently rewrite <code>localhost</code> to <code>10.0.2.2</code>, an alias that only exists inside Android emulators; (c) the dev machine's LAN IP then needed its own cleartext exemption; (d) the Java-based Firestore emulator bound to IPv6 only (<code>:::8080</code>) while the Node-based Auth emulator bound IPv4, so half the backend was reachable; (e) a Windows Firewall <i>Block</i> rule for Android Studio's <code>java.exe</code> (created by a long-forgotten dismissed popup) overrode the port allow rule.</td>
@@ -422,8 +424,6 @@ final system commits to a strong, recognizable visual language:</p>
 
 <h2>12. Limitations and future improvements</h2>
 <ul>
-  <li><b>Production Firebase project</b>: blocked by the billing constraint (Section 9, Challenge 3); the
-  switch is a single flag once an unrestricted billing account is available.</li>
   <li><b>Push notifications</b>: FCM is scaffolded but not delivered end-to-end; the Cloud Functions
   fan-out point (Section 10) is where it attaches.</li>
   <li><b>File uploads</b>: resume and portfolio upload to Firebase Storage is stubbed at the UI level.</li>

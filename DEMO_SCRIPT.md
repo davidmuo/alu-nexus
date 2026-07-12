@@ -3,18 +3,18 @@
 A ~10-minute walkthrough. Each section names the rubric criterion it earns,
 what to show, and the one-sentence explanation to give while showing it.
 
-> **Setup (production console):** set `kDemoMode = false`,
-> `kUseEmulators = false` in `lib/main.dart`; open the Firebase Console with
-> **Authentication → Users** and **Firestore → Data** visible; run the app.
+> **Setup (production — this is live now):** the app ships pointed at the
+> production project `alunexus-5416d` (`kDemoMode = false`,
+> `kUseEmulators = false`). Open the **real Firebase Console**
+> (console.firebase.google.com/project/alunexus-5416d) with
+> **Authentication → Users** and **Firestore Database → Data** visible,
+> and run the app on the phone. Production is already seeded
+> (`tool/seed_production.sh` re-runs idempotently if ever needed).
 >
-> **Setup (emulator variant — works today):**
-> ```
-> firebase emulators:start --only auth,firestore --project=alunexus-b85a1
-> bash tool/seed_emulator.sh
-> flutter run -d chrome     # kDemoMode=false, kUseEmulators=true
-> ```
-> Keep the **Emulator UI** (http://localhost:4000) visible instead of the
-> console — its Authentication and Firestore tabs update live the same way.
+> **Fallback (offline demo):** the Local Emulator Suite variant still works:
+> `firebase emulators:start --only auth,firestore --project=alunexus-b85a1`,
+> `bash tool/seed_emulator.sh`, set `kUseEmulators = true`, Emulator UI at
+> localhost:4000.
 >
 > **Demo accounts (seeded):**
 >
@@ -28,14 +28,6 @@ what to show, and the one-sentence explanation to give while showing it.
 > the skill-match ranking fires), one shortlisted application with a status
 > note, and an unread notification. Register a *fresh* student on camera for
 > the auth demo; switch to the seeded accounts for the role demos.
->
-> **If demoing on the emulator, say this once, when the data viewer first
-> appears on screen:** "Firestore database creation is billing-gated on our
-> student Google accounts — a constraint documented in my report — so I'm
-> running the Firebase Local Emulator Suite: the same Firebase Auth and
-> Firestore services locally, with the same SDKs and my production security
-> rules. Everything you see syncing here works identically against a
-> production project by flipping one flag."
 
 ---
 
