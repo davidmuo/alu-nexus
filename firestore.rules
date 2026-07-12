@@ -11,10 +11,16 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Users: anyone signed in can read profiles; only the owner writes
+    // Users: anyone signed in can read profiles; only the owner writes.
+    // Role escalation is blocked: self-registration may only claim the
+    // student or startup role, and the role field is immutable afterward.
+    // Admin accounts are provisioned out-of-band.
     match /users/{userId} {
       allow read: if signedIn();
-      allow create, update: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.role in ['student', 'startup'];
+      allow update: if signedIn() && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role;
     }
 
     // Startups: readable by all signed-in users; owner or admin mutates
