@@ -75,7 +75,6 @@ lib/
 ```
 
 Full rationale, diagrams, and scalability discussion: [REPORT.md](REPORT.md).
-Demo walkthrough mapped to the grading rubric: [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
 
 ## Quality
 
